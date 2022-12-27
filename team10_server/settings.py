@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-n)+x1edk-o6n%kh86fjlkz-f#rtfz0ocdl!7jzr8e^u!5+lg0='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['etl-dxnn.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'authentication.apps.AuthenticationConfig',
     'etl.apps.EtlConfig',
 ]
 
@@ -138,3 +139,5 @@ LOGGING = {
         'handlers': ['console']
     },
 }
+
+AUTH_USER_MODEL = 'authentication.User'
