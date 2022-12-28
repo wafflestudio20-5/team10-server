@@ -1,8 +1,48 @@
 from rest_framework import serializers
 from .models import User
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(max_length=100, required=True)
+    password = serializers.CharField(max_length=100, required=True, write_only=True)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['token'] = instance.auth_token.key
+        return rep
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'student_id', 'is_qualified', 'is_professor']
+        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_qualified', 'is_professor', 'is_staff']
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."}
+            )
+        return data
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'password', 'confirm_password']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(validated_data['email'], validated_data['password'])
+        Token.objects.create(user=user)
+        return user
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = ['key']
