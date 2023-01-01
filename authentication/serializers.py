@@ -13,12 +13,9 @@ class UserSerializer(serializers.ModelSerializer):
         rep['token'] = instance.auth_token.key
         return rep
 
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
-
     class Meta:
         model = User
-        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_qualified', 'is_professor', 'is_staff']
+        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
