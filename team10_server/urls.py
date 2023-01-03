@@ -21,4 +21,5 @@ urlpatterns = [
     path('authentication/', include('authentication.urls')),
     path('accounts/', include('allauth.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('etl/', include('etl.urls')),
 ]
