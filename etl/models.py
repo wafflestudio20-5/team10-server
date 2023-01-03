@@ -31,12 +31,3 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField()
     modified_at = models.DateTimeField(null=True, blank=True)
-
-class Class(models.Model):
-    name = models.CharField(max_length=50)
-    student = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    announcement = models.ForeignKey(Announcement, null=True, blank=True, on_delete=models.SET_NULL)
-    assignment = models.ForeignKey(Assignment, null=True, blank=True, on_delete=models.SET_NULL)
-    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.SET_NULL)
-
-
