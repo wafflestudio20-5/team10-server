@@ -5,7 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Class(models.Model):
     name = models.CharField(max_length=50)
-    student = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    student = models.ManyToManyField(User, related_name='classes')
 
 
 class Announcement(models.Model):
