@@ -2,11 +2,19 @@ from rest_framework import serializers
 from .models import User
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.password_validation import validate_password
+from etl.models import Class
+
+
+class ClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = ['id', 'name']
 
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=100, required=True)
     password = serializers.CharField(max_length=100, required=True, write_only=True)
+    classes = ClassSerializer(many=True)
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -15,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser']
+        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

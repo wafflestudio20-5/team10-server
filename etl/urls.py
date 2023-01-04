@@ -6,6 +6,7 @@ from .views import *
 urlpatterns = [
     path('classes/', ClassListView.as_view()),
     path('classes/create/', ClassCreateView.as_view()),
+    path('<int:pk>/enroll/', EnrollClassView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
