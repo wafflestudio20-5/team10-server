@@ -7,6 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'student_id', 'is_professor']
+        ref_name = 'user-simple'
 
 
 class ClassSerializer(serializers.ModelSerializer):
@@ -15,3 +16,4 @@ class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = ['id', 'name', 'student']
+        ref_name = 'class-detail'
