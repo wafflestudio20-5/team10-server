@@ -3,7 +3,7 @@ from .models import User
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.password_validation import validate_password
 from etl.models import Class
-
+from rest_framework.validators import UniqueValidator
 
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,21 +30,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    confirm_password = serializers.CharField(write_only=True, required=True)
-
-    def validate(self, data):
-        if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."}
-            )
-        return data
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'password', 'confirm_password']
+        fields = ['id', 'email', 'password', 'username', 'student_id']
 
     def create(self, validated_data):
-        user = User.objects.create_user(validated_data['email'], validated_data['password'])
+        user = User.objects.create_user(validated_data['email'], validated_data['password'], validated_data['username'], validated_data['student_id'])
         Token.objects.create(user=user)
         return user
 
@@ -53,3 +45,9 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
         fields = ['key']
+
+class UserIDSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
+    class Meta:
+        model = User
+        fields = ['email']
