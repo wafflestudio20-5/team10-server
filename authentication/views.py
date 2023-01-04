@@ -3,6 +3,8 @@ from authentication.serializers import *
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from django.contrib.auth.models import update_last_login
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 
 
 # Create your views here.
@@ -12,46 +14,43 @@ class RegisterAPI(generics.CreateAPIView):
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserSerializer
-
     def create(self, request, *args, **kwargs):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
         user = authenticate(email=email, password=password)
-
         if user is None:
             return Response({"email": "not correct"}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             update_last_login(None, user)
+            token, _ = Token.objects.get_or_create(user=user)
         except User.DoesNotExist:
             raise serializers.ValidationError(
                 'User with given email and password does not exists'
             )
-
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
 
-class SetUserInfoAPI(generics.UpdateAPIView):
+class SetUserInfoAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
-    queryset = User.objects.all()
 
-    # TODO: 해결하지 못한 것: 만약 username 이나 student_id 둘 중 하나만 입력하였을 때, is_qualified 가 제대로 업데이트되지 않음.
-    def patch(self, request, *args, **kwargs):
-        try:
-            if request.data["username"] is None or request.data["student_id"] is None:
-                return super().patch(request, *args, **kwargs)
-            instance = self.get_object()
-            instance.is_qualified = True
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
+    def get_queryset(self):
+        return User.objects.all().filter(email=self.request.user) #현재 접속중인 user의 정보만 반환(보안)
 
-            if getattr(instance, '_prefetched_objects_cache', None):
-                # If 'prefetch_related' has been applied to a queryset, we need to
-                # forcibly invalidate the prefetch cache on the instance.
-                instance._prefetched_objects_cache = {}
 
-            return Response(serializer.data)
-        except KeyError:
-            return super().patch(request, *args, **kwargs)
+class IdCheckAPI(generics.CreateAPIView):
+    serializer_class = UserIDSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({"email": "valid"}, status=status.HTTP_200_OK)
+
+
+class LogoutAPI(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)

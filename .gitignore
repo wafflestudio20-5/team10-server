@@ -1,0 +1,7 @@
+.idea/
+venv/
+authentication/__pycache__/
+authentication/migrations/__pycache__/
+etl/__pycache__/
+etl/migrations/__pycache__/
+team10_server/__pycache__/
