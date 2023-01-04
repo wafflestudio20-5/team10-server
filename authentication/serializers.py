@@ -9,6 +9,7 @@ class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = ['id', 'name']
+        ref_name = "class-simple"
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -24,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
+        ref_name = "user-detail"
 
 
 class RegisterSerializer(serializers.ModelSerializer):
