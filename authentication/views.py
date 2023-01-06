@@ -3,8 +3,8 @@ from authentication.serializers import *
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from django.contrib.auth.models import update_last_login
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
+from .permissions import *
 
 
 # Create your views here.
@@ -14,6 +14,7 @@ class RegisterAPI(generics.CreateAPIView):
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserSerializer
+
     def create(self, request, *args, **kwargs):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
@@ -31,12 +32,11 @@ class LoginAPI(generics.CreateAPIView):
         return Response(serializer.data)
 
 
+# 현진님의 코드 조금 수정함. 유저가 자신의 정보에만 접근할 수 있도록 permissions.py를 추가했음.
 class SetUserInfoAPI(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DoesUserMatchRequest]
     serializer_class = UserSerializer
-
-    def get_queryset(self):
-        return User.objects.all().filter(email=self.request.user) #현재 접속중인 user의 정보만 반환(보안)
+    queryset = User.objects.all()
 
 
 class IdCheckAPI(generics.CreateAPIView):

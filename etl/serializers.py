@@ -15,5 +15,4 @@ class ClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Class
-        fields = ['id', 'name', 'student']
-        ref_name = 'class-detail'
+        fields = ['id', 'name']
