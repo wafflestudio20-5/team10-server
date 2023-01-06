@@ -1,16 +1,10 @@
 from rest_framework import serializers
+
+from etl.serializers import ClassSerializer
 from .models import User
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.password_validation import validate_password
-from etl.models import Class
 from rest_framework.validators import UniqueValidator
-
-
-class ClassSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Class
-        fields = ['id', 'name']
-        ref_name = "class-simple"
 
 
 class UserSerializer(serializers.ModelSerializer):
