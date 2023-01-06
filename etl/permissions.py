@@ -28,7 +28,17 @@ class IsAdmin(permissions.BasePermission):
 
 
 # 현재 요청을 날린 유저가 교수인지 확인
-# 교수이더라도, 이름이 설정되지 않은 교수라면 유효하지 않은 접근으로 판단(request.user.username is not None)
-class IsProfessor(permissions.BasePermission):
+# 현재 요청이 안전한 요청이라면 허용, 안전하지 않은 요청이라면 교수에게만 권한 허용
+class IsProfessorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
         return bool(request.user.username is not None and request.user.is_professor)
+
+
+# 현재 요청이 안전한 요청이라면 허용, 안전하지 않은 요청이라만 만든 사람에게만 권한 허용
+class IsCreatorReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.created_by == request.user
