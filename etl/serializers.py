@@ -11,8 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ClassSerializer(serializers.ModelSerializer):
-    student = UserSerializer(many=True)
-
     class Meta:
         model = Class
         fields = ['id', 'name']
