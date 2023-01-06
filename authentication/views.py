@@ -3,7 +3,6 @@ from authentication.serializers import *
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from django.contrib.auth.models import update_last_login
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 
 
@@ -14,6 +13,7 @@ class RegisterAPI(generics.CreateAPIView):
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserSerializer
+
     def create(self, request, *args, **kwargs):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
