@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 
 class ClassListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsQualified]
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
 
