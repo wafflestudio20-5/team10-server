@@ -15,9 +15,9 @@ class DoesUserMatchRequest(permissions.BasePermission):
 # 프론트엔드 단에서 username==null or student_id==null 조건문을 통해 적절히 분기하겠지만, 백엔드 단에서 한 번 더 확인해주기 위함.
 # 기존 IsAuthenticated 는 개인정보가 설정되었는지 확인해주지 않으므로, IsAuthenticated 보다는 IsQualified 를 사용하기를 장려함.
 class IsQualified(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         return bool(
-            request.user.username is not None and request.user.student_id is not None)
+            request.user.is_authenticated and request.user.username is not None and request.user.student_id is not None)
 
 
 # 현재 요청을 날린 유저가 관리자이지 확인
@@ -33,7 +33,7 @@ class IsProfessorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return bool(request.user.username is not None and request.user.is_professor)
+        return bool(request.user.is_authenticated and request.user.username is not None and request.user.is_professor)
 
 
 # 현재 요청이 안전한 요청이라면 허용, 안전하지 않은 요청이라만 만든 사람에게만 권한 허용
