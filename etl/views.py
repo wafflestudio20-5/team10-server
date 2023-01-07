@@ -1,8 +1,9 @@
 from .serializers import *
 from rest_framework import generics, permissions
 from .models import *
-from authentication.serializers import UserSerializer
+from authentication.serializers import UserDetailSerializer
 from .permissions import *
+from .paginations import *
 
 
 class ClassListView(generics.ListAPIView):
@@ -19,7 +20,7 @@ class ClassCreateView(generics.CreateAPIView):
 # 수강신청에 사용하는 클래스. 수강신청 후 다시 유저정보를 불러와야 하므로 GET 요청으로 처리함.
 class EnrollClassView(generics.RetrieveAPIView):
     permission_classes = [DoesUserMatchRequest]
-    serializer_class = UserSerializer
+    serializer_class = UserDetailSerializer
     queryset = User.objects.all()
 
     def get(self, *args, **kwargs):
@@ -34,7 +35,7 @@ class EnrollClassView(generics.RetrieveAPIView):
 # 수업 드랍에 사용하는 클래스. 드랍 후 다시 유저정보를 불러와야 하므로 GET 요청으로 처리함.
 class DropClassView(generics.RetrieveAPIView):
     permission_classes = [DoesUserMatchRequest]
-    serializer_class = UserSerializer
+    serializer_class = UserDetailSerializer
     queryset = User.objects.all()
 
     # 코드에 대한 설명은 EnrollClassView 와 유사하므로 이를 참조하기 바람.
@@ -43,3 +44,12 @@ class DropClassView(generics.RetrieveAPIView):
         lecture = Class.objects.get(id=class_id)
         self.request.user.classes.remove(lecture)
         return super().get(self, *args, **kwargs)
+
+
+class StudentListView(generics.ListAPIView):
+    pagination_class = StudentListPagination
+    serializer_class = UserSimpleSerializer
+    permission_classes = [IsAdmin]
+
+    def get_queryset(self):
+        return User.objects.filter(classes=self.kwargs['pk'])

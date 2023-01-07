@@ -13,7 +13,7 @@ class RegisterAPI(generics.CreateAPIView):
 
 
 class LoginAPI(generics.CreateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserDetailSerializer
 
     def create(self, request, *args, **kwargs):
         email = request.data.get('email', None)
@@ -28,14 +28,14 @@ class LoginAPI(generics.CreateAPIView):
             raise serializers.ValidationError(
                 'User with given email and password does not exists'
             )
-        serializer = UserSerializer(user)
+        serializer = UserDetailSerializer(user)
         return Response(serializer.data)
 
 
 # 현진님의 코드 조금 수정함. 유저가 자신의 정보에만 접근할 수 있도록 permissions.py를 추가했음.
 class SetUserInfoAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [DoesUserMatchRequest]
-    serializer_class = UserSerializer
+    serializer_class = UserDetailSerializer
     queryset = User.objects.all()
 
 
