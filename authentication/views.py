@@ -20,7 +20,7 @@ class LoginAPI(generics.CreateAPIView):
         password = request.data.get('password', None)
         user = authenticate(email=email, password=password)
         if user is None:
-            return Response({"email": "not correct"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "email or password is not correct"}, status=status.HTTP_400_BAD_REQUEST)
         try:
             update_last_login(None, user)
             token, _ = Token.objects.get_or_create(user=user)
