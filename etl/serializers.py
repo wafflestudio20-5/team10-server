@@ -13,3 +13,12 @@ class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = ['id', 'name']
+
+
+class EnrollDropSerializer(serializers.ModelSerializer):
+    class_id = serializers.IntegerField(required=True, write_only=True)
+    classes = ClassSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = ['class_id', 'classes']
