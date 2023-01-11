@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from django.contrib.auth.models import update_last_login
 from rest_framework.permissions import IsAuthenticated
 from .permissions import *
+import authentication.swaggers as swaggers
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.authtoken.models import Token
 
 
 # Create your views here.
@@ -15,7 +18,11 @@ class RegisterAPI(generics.CreateAPIView):
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserDetailSerializer
 
-    def create(self, request, *args, **kwargs):
+    @swagger_auto_schema(
+        request_body=swaggers.login_request_body,
+        responses=swaggers.login_responses,
+    )
+    def post(self, request, *args, **kwargs):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
         user = authenticate(email=email, password=password)
@@ -29,7 +36,8 @@ class LoginAPI(generics.CreateAPIView):
                 'User with given email and password does not exists'
             )
         serializer = UserDetailSerializer(user)
-        return Response(serializer.data)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # 현진님의 코드 조금 수정함. 유저가 자신의 정보에만 접근할 수 있도록 permissions.py를 추가했음.
