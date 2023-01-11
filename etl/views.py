@@ -1,3 +1,4 @@
+from authentication.serializers import UserDetailSerializer
 from .serializers import *
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -9,10 +10,23 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 
-class ClassListView(generics.ListCreateAPIView):
+class ClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+
+
+class ProfessorClassListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessor)]
+    serializer_class = ClassSerializer
+
+    def get_queryset(self):
+        return Class.objects.filter(created_by=self.request.user)
+
+
+class ClassDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAdmin | IsCreatorReadOnly]
+    queryset = Class.objects.all()
 
 
 class EnrollClassView(generics.CreateAPIView):
@@ -175,3 +189,10 @@ class AssignmentGradingView(generics.UpdateAPIView):
     queryset = Assignment.objects.all()
     serializer_class=AssignmentGradingSerializer
     permission_classes = [IsCreatorReadOnly | IsAdmin]
+
+
+# 디버깅용 모든 유저의 정보를 보는 View
+# class UserListView(generics.ListAPIView):
+#     permission_classes = [IsAdmin]
+#     queryset = User.objects.all()
+#     serializer_class = UserDetailSerializer
