@@ -1,3 +1,4 @@
+from authentication.serializers import UserDetailSerializer
 from .serializers import *
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -5,14 +6,27 @@ from .models import *
 from .permissions import *
 from .paginations import *
 from rest_framework.response import Response
-from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+import etl.swaggers as swaggers
 
 
-class ClassListView(generics.ListCreateAPIView):
+class ClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+
+
+class ProfessorClassListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessor)]
+    serializer_class = ClassSerializer
+
+    def get_queryset(self):
+        return Class.objects.filter(created_by=self.request.user)
+
+
+class ClassDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAdmin | IsCreatorReadOnly]
+    queryset = Class.objects.all()
 
 
 class EnrollClassView(generics.CreateAPIView):
@@ -20,34 +34,8 @@ class EnrollClassView(generics.CreateAPIView):
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
-        request_body=openapi.Schema(
-            'Enroll',
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'class_id': openapi.Schema('class id', type=openapi.TYPE_INTEGER),
-            },
-            description='현재 로그인된 유저가 수강신청할 Class의 id를 입력으로 받습니다.',
-        ),
-        responses={
-            201: openapi.Schema(
-                'Enroll',
-                description='수강신청 이후 현재 로그인된 유저가 수강하는 Class list를 반환합니다.',
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    'classes': openapi.Schema(
-                        type=openapi.TYPE_ARRAY,
-                        items=openapi.Schema(
-                            'Class',
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                'id': openapi.Schema('ID', read_only=True, type=openapi.TYPE_INTEGER),
-                                'name': openapi.Schema('name', type=openapi.TYPE_STRING),
-                            },
-                        ),
-                    ),
-                }
-            ),
-        },
+        request_body=swaggers.enroll_request_body,
+        responses=swaggers.enroll_responses,
     )
     def post(self, request, *args, **kwargs):
         class_id = int(request.data['class_id'])
@@ -65,34 +53,8 @@ class DropClassView(generics.CreateAPIView):
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
-        request_body=openapi.Schema(
-            'Drop',
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'class_id': openapi.Schema('class id', type=openapi.TYPE_INTEGER),
-            },
-            description='현재 로그인된 유저가 수강신청할 Class의 id를 입력으로 받습니다.',
-        ),
-        responses={
-            201: openapi.Schema(
-                'Drop',
-                description='드랍 이후 현재 로그인된 유저가 수강하는 Class list를 반환합니다.',
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    'classes': openapi.Schema(
-                        type=openapi.TYPE_ARRAY,
-                        items=openapi.Schema(
-                            'Class',
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                'id': openapi.Schema('ID', read_only=True, type=openapi.TYPE_INTEGER),
-                                'name': openapi.Schema('name', type=openapi.TYPE_STRING),
-                            },
-                        ),
-                    ),
-                }
-            ),
-        },
+        request_body=swaggers.drop_request_body,
+        responses=swaggers.drop_responses,
     )
     def post(self, request, *args, **kwargs):
         class_id = int(request.data['class_id'])
@@ -179,3 +141,10 @@ class AssignmentGradingView(generics.UpdateAPIView):
     queryset = Assignment.objects.all()
     serializer_class=AssignmentGradingSerializer
     permission_classes = [IsCreatorReadOnly | IsAdmin]
+
+
+# 디버깅용 모든 유저의 정보를 보는 View
+# class UserListView(generics.ListAPIView):
+#     permission_classes = [IsAdmin]
+#     queryset = User.objects.all()
+#     serializer_class = UserDetailSerializer
