@@ -15,8 +15,8 @@ urlpatterns = [
     path('assignments/<int:pk>/', AssignmentClassView.as_view()),
     path('assignments/class/<int:pk>/', AssignmentListByLectureView.as_view()),
     path('assignments/student/', AssignmentListByStudentView.as_view()),
-    path('assignments/grade/<int:pk>/', AssignmentGradeGetView.as_view()),
-    path('assignments/grading/<int:pk>/', AssignmentGradingView.as_view()),
+    path('assignments/<int:pk>/score/', AssignmentGradeGetView.as_view()),
+    path('assignments/<int:pk>/grading/', AssignmentGradingView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
