@@ -50,7 +50,7 @@ class IdCheckAPI(generics.CreateAPIView):
 
 class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-
+    serializer_class = UserDetailSerializer
     def get(self, request, *args, **kwargs):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
