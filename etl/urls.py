@@ -4,10 +4,13 @@ from .views import *
 
 
 urlpatterns = [
-    path('class/', ClassListView.as_view()),
+    path('class/list/', ClassListCreateView.as_view()),
+    path('class/professor-list/', ProfessorClassListCreateView.as_view()),
+    path('class/delete/<int:pk>', ClassDeleteView.as_view()),
     path('class/enroll/', EnrollClassView.as_view()),
     path('class/drop/', DropClassView.as_view()),
     path('class/<int:pk>/user-list/', StudentListView.as_view()),
+    # path('user-list/', UserListView.as_view()),
     path('assignments/', AssignmentListCreateView.as_view()),
     path('assignments/<int:pk>/', AssignmentClassView.as_view()),
     path('assignments/class/<int:pk>/', AssignmentListByLectureView.as_view()),
