@@ -10,6 +10,11 @@ class UserSimpleSerializer(serializers.ModelSerializer):
 
 
 class ClassSerializer(serializers.ModelSerializer):
+
+    def to_internal_value(self, data):
+        internal_value = super().to_internal_value(data)
+        return {**internal_value, 'created_by': self.context['request'].user}
+
     class Meta:
         model = Class
         fields = ['id', 'name']
@@ -36,6 +41,7 @@ class AssignmentCreateSerializer(serializers.ModelSerializer):
             assignment.student.add(s)
         assignment.save()
         return assignment
+
     class Meta:
         model = Assignment
         fields = ['id', 'lecture', 'name', 'due_date', 'max_grade', 'weight']
