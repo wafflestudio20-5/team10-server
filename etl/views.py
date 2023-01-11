@@ -20,6 +20,8 @@ class EnrollClassView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         class_id = int(request.data['class_id'])
         lecture = Class.objects.get(id=class_id)
+        for l in lecture.assignment_set.all():
+            l.student.add(request.user)
         request.user.classes.add(lecture)
         serializer = EnrollDropSerializer(request.user)
         headers = self.get_success_headers(serializer.data)
@@ -34,6 +36,8 @@ class DropClassView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         class_id = int(request.data['class_id'])
         lecture = Class.objects.get(id=class_id)
+        for l in lecture.assignment_set.all():
+            l.student.remove(request.user)
         request.user.classes.remove(lecture)
         serializer = EnrollDropSerializer(request.user)
         headers = self.get_success_headers(serializer.data)
