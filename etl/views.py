@@ -1,4 +1,4 @@
-from authentication.serializers import UserDetailSerializer
+from authentication.serializers import UserLoginSerializer
 from .serializers import *
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -30,7 +30,7 @@ class ClassDeleteView(generics.DestroyAPIView):
 
 
 class EnrollClassView(generics.CreateAPIView):
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAuthenticated & IsQualified]
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
@@ -49,7 +49,7 @@ class EnrollClassView(generics.CreateAPIView):
 
 
 class DropClassView(generics.CreateAPIView):
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAuthenticated & IsQualified]
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
