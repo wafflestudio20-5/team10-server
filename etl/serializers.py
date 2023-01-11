@@ -56,6 +56,7 @@ class AssignmentToStudentSerializer(serializers.ModelSerializer):
 class AssignmentGradingSerializer(serializers.ModelSerializer):
     student_id = serializers.CharField(max_length=10, write_only=True)
     score = serializers.FloatField(write_only=True)
+
     def update(self, instance, validated_data):
         try:
             student = User.objects.get(student_id=validated_data['student_id'])
@@ -68,6 +69,7 @@ class AssignmentGradingSerializer(serializers.ModelSerializer):
                 'Invalid student id'
             )
         return instance
+
     class Meta:
         model = Assignment
         fields = ['id', 'student_id', 'score']

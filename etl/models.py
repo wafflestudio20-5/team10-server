@@ -38,6 +38,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField()
     modified_at = models.DateTimeField(null=True, blank=True)
 
+
 class AssignmentToStudent(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
