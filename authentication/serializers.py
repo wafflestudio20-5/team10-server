@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 
 
-class UserDetailSerializer(serializers.ModelSerializer):
+class UserLoginSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=100, required=True)
     password = serializers.CharField(max_length=100, required=True, write_only=True)
     classes = ClassSerializer(many=True)
@@ -21,6 +21,22 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    classes = ClassSerializer(many=True)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        try:
+            rep['token'] = instance.auth_token.key
+        except:
+            rep['token'] = 'no token. please contact developers'
+        return rep
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
