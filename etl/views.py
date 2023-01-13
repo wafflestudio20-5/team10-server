@@ -172,7 +172,7 @@ class AssignmentGradeGetView(generics.RetrieveAPIView):
 # 교수자가 pk번째 assignments 채점. 학번, 점수 입력
 class AssignmentGradingView(generics.UpdateAPIView):
     queryset = Assignment.objects.all()
-    serializer_class=AssignmentGradingSerializer
+    serializer_class = AssignmentGradingSerializer
     permission_classes = [IsCreatorReadOnly | IsAdmin]
 
     @swagger_auto_schema(operation_description="Assignment 채점 : 교수자가 id번째 Assignment의 성적을 해당 학생의 user_id, 점수를 입력해 채점")
@@ -189,3 +189,80 @@ class AssignmentGradingView(generics.UpdateAPIView):
 #     permission_classes = [IsAdmin]
 #     queryset = User.objects.all()
 #     serializer_class = UserDetailSerializer
+
+class AnnouncementListView(generics.ListAPIView):
+    pagination_class = PostListPagination
+    # permission_classes = [IsQualified]
+    queryset = Post.objects.filter(is_announcement=True)
+    serializer_class = PostSerializer
+
+    def list(self, request, *args, **kwargs):
+        return Response(self.get_serializer(self.get_queryset(), many=True).data)
+
+
+class AnnouncementDetailView(generics.RetrieveAPIView):
+    permission_classes = [IsQualified | IsAdmin]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+
+class AnnouncementCreateView(generics.CreateAPIView):
+    permission_classes = [IsProfessorOrReadOnly]
+    serializer_class = AnnouncementCreateSerializer
+
+
+class AnnouncementUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsProfessorOrReadOnly]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+
+class AnnouncementDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsProfessorOrReadOnly]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+
+class QuestionListView(generics.ListAPIView):
+    pagination_class = PostListPagination
+    permission_classes = [IsQualified | IsAdmin]
+    queryset = Post.objects.filter(is_announcement=False)
+    serializer_class = PostSerializer
+
+    def list(self, request, *args, **kwargs):
+        return Response(self.get_serializer(self.get_queryset(), many=True).data)
+
+
+class QuestionDetailView(generics.RetrieveAPIView):
+    permission_classes = [IsQualified | IsAdmin]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+
+class QuestionCreateView(generics.CreateAPIView):
+    permission_classes = [IsQualified | IsAdmin]
+    serializer_class = PostCreateSerializer
+
+
+class QuestionUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsQualified | IsAdmin]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+
+class QuestionDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsQualified | IsAdmin]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+
+class CommentCreateView(generics.CreateAPIView):
+    permission_classes = [IsQualified | IsAdmin]
+    serializer_class = CommentSerializer
+
+    def post(self, request, *args, **kwargs):
+        comment = Comment.objects.create(post_id=self.kwargs['pk'], content=request.data['content'], created_by=request.user)
+        serializer = CommentSerializer(comment)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
