@@ -40,8 +40,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    is_professor = serializers.BooleanField(required=True)
+    student_id = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+
+    def validate_student_id(self, value: str):
+        if len(value) != 10:
+            raise serializers.ValidationError('student_id should be 10 length')
+        if value[4] != '-':
+            raise serializers.ValidationError('student_id form should be XXXX-XXXXX')
+        try:
+            User.objects.get(student_id=value)
+            raise serializers.ValidationError('already existing student_id')
+        except User.DoesNotExist:
+            pass
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(validated_data['email'], validated_data['password'])
