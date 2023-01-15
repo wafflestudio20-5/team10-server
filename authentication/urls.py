@@ -11,6 +11,7 @@ urlpatterns = [
     path('student/<int:pk>/drop-out/', DropOutView.as_view()),
     path('kakao/login/', kakao_login, name='kakao_login'),
     path('kakao/callback/', kakao_callback, name='kakao_callback'),
+    path('change-password/', ChangePasswordView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
