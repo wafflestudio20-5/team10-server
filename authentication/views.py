@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.contrib.auth.hashers import check_password
 
 
 # Create your views here.
@@ -109,7 +110,8 @@ def kakao_callback(request):
         KakaoException("Can't get access token")
 
     access_token = access_token_json["access_token"]
-    user_info = requests.get("https://kapi.kakao.com/v2/user/me", headers={"Authorization": f'Bearer ${access_token}'}).json()
+    user_info = requests.get("https://kapi.kakao.com/v2/user/me",
+                             headers={"Authorization": f'Bearer ${access_token}'}).json()
 
     kakao_id = user_info.get("id")
     kakao_account = user_info.get("kakao_account")
@@ -135,3 +137,17 @@ def kakao_callback(request):
 
 class DropOutView(generics.DestroyAPIView):
     queryset = User.objects.all()
+
+
+class ChangePasswordView(generics.CreateAPIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = IsAuthenticated
+
+    def post(self, request, *args, **kwargs):
+        new_password = request.data['new_password']
+        same_with_before_password = check_password(new_password, request.user.password)
+        if same_with_before_password:
+            return Response({"error": "same with previous password"}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.set_password(new_password)
+        request.user.save()
+        return Response({"success": "new password has been set"}, status=status.HTTP_201_CREATED)
