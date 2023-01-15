@@ -8,7 +8,11 @@ from rest_framework.validators import UniqueValidator
 class UserLoginSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=100, required=True)
     password = serializers.CharField(max_length=100, required=True, write_only=True)
-    classes = ClassSerializer(many=True)
+    username = serializers.CharField(read_only=True)
+    student_id = serializers.CharField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
+    is_professor = serializers.BooleanField(read_only=True)
+    classes = ClassSerializer(many=True, read_only=True)
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
