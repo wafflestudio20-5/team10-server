@@ -44,13 +44,6 @@ class LoginAPI(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# 현진님의 코드 조금 수정함. 유저가 자신의 정보에만 접근할 수 있도록 permissions.py를 추가했음.
-class SetUserInfoAPI(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [DoesUserMatchRequest]
-    serializer_class = UserDetailSerializer
-    queryset = User.objects.all()
-
-
 class IdCheckAPI(generics.CreateAPIView):
     serializer_class = UserIDSerializer
 
@@ -138,3 +131,7 @@ def kakao_callback(request):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     # return redirect(f"{BASE_URL}etl/announcement/")
     return redirect("https://www.naver.com")
+
+
+class DropOutView(generics.DestroyAPIView):
+    queryset = User.objects.all()
