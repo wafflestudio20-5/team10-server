@@ -58,6 +58,7 @@ class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
+    @swagger_auto_schema(responses=swaggers.logout_responses)
     def get(self, request, *args, **kwargs):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
@@ -141,13 +142,17 @@ class DropOutView(generics.DestroyAPIView):
 
 class ChangePasswordView(generics.CreateAPIView):
     serializer_class = ChangePasswordSerializer
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_description=swaggers.change_password_operation_description,
+                         responses=swaggers.change_password_responses)
     def post(self, request, *args, **kwargs):
         new_password = request.data['new_password']
+        if len(new_password) < 8:
+            return Response({"error": "too short password. password length should be >=8."}, status=status.HTTP_400_BAD_REQUEST)
         same_with_before_password = check_password(new_password, request.user.password)
         if same_with_before_password:
-            return Response({"error": "same with previous password"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "same with previous password."}, status=status.HTTP_400_BAD_REQUEST)
         request.user.set_password(new_password)
         request.user.save()
-        return Response({"success": "new password has been set"}, status=status.HTTP_201_CREATED)
+        return Response({"success": "new password has been set."}, status=status.HTTP_201_CREATED)
