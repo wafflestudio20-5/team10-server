@@ -51,14 +51,22 @@ login_responses = {
     ),
 }
 
-change_password_operation_description = 'request body로 new_password를 입력받습니다. ' \
-                                        'Token을 이용해 현재 요청을 넣은 유저를 알아내고, 현재 유저의 ' \
-                                        'password를 new_password로 변경합니다. 이 때, 이전 비밀번호와 new_password가 ' \
-                                        '동일하다면 오류가 발생합니다.'
+change_password_request = openapi.Schema(
+    'ChangePassword',
+    type=openapi.TYPE_OBJECT,
+    required=['new_password'],
+    properties={
+        'new_password': openapi.Schema(
+            type=openapi.TYPE_STRING,
+            min_length=8,
+        )
+    },
+    description='새롭게 설정할 비밀번호를 request body에 담습니다.'
+)
 
 change_password_responses = {
     201: openapi.Schema(
-        'ChangePassword',
+        'Success',
         type=openapi.TYPE_OBJECT,
         properties={
             'success': openapi.Schema(
@@ -77,7 +85,7 @@ change_password_responses = {
             )
         },
         description='new_password가 8자 미만이거나, 비밀번호가 이전 비밀번호와 동일하다면, 이 response가 반환됩니다.'
-                    '\n1. 8자 이하일 때, "too short password. password length should be >=8."'
+                    '\n1. 8자 미만일 때, "too short password. password length should be >=8."'
                     '\n2. 이전 비밀번호와 동일할 때, "same with previous password."'
                     '\n3. 그 외 기타 사유.'
     ),
@@ -91,5 +99,70 @@ logout_responses = {
     200: openapi.Schema(
         type=openapi.TYPE_OBJECT,
         description='로그아웃이 잘 되었다면, 아무것도 반환하지 않습니다.'
+    )
+}
+
+logout_operation_description = '현재 유저의 토큰을 삭제합니다. request body로 아무것도 받지 않습니다.\n' \
+                               '로그아웃이 잘 되어 토큰이 삭제되었다면, ' \
+                               '200 status code를 반환합니다.'
+
+delete_student_operation_description = '자퇴 신청에 사용합니다. 학생의 정보를 삭제합니다. request body로 아무것도 받지 않습니다.\n' \
+                                       '{id}는 학생의 id를 의미합니다.' \
+                                 '잘 삭제되었다면, 204 status code를 반환합니다.'
+
+register_operation_description = '일반 회원가입 시, email, password, username, student_id, is_professor를' \
+                                 ' 모두 입력으로 받습니다.\n"is_professor": false 일 경우 학생 회원가입, ' \
+                                 '"is_professor": true 일 경우 교수 회원가입입니다.\n회원가입이 잘 처리되었다면 ' \
+                                 '현재 생성된 유저 정보를 다시 돌려받습니다.'
+
+register_responses = {
+    201: openapi.Schema(
+        'Success',
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'id': openapi.Schema(
+                type=openapi.TYPE_INTEGER, read_only=True
+            ),
+            'email': openapi.Schema(
+                type=openapi.TYPE_STRING
+            ),
+            'username': openapi.Schema(
+                type=openapi.TYPE_STRING
+            ),
+            'student_id': openapi.Schema(
+                type=openapi.TYPE_STRING
+            ),
+            'is_professor': openapi.Schema(
+                type=openapi.TYPE_BOOLEAN
+            )
+        }
+    )
+}
+
+idcheck_operation_description = '아이디 중복확인을 위한 API입니다. 현재 유저가 생성하려는 이메일이 이미 존재하는' \
+                                ' 이메일인지 확인해줍니다.\nrequest body에 email 값을 받습니다.'
+
+idcheck_operation_responses = {
+    201: openapi.Schema(
+        'Success',
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'email': openapi.Schema(type=openapi.TYPE_STRING, default='valid')
+        },
+        description='이미 존재하는 이메일이 아닌 경우, 이 response를 반환합니다.'
+    ),
+    400: openapi.Schema(
+        'Fail',
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'email': openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='1. 적절한 이메일 형식이 아니라면, "Enter a valid email address." 메시지 반환.\n'
+                                '2. 이미 존재하는 이메일이라면, "This field must be unique." 메시지 반환.'
+                ),
+            ),
+        }
     )
 }
