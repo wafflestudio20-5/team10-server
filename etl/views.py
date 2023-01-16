@@ -1,6 +1,6 @@
 from authentication.serializers import UserLoginSerializer
 from .serializers import *
-from rest_framework import generics, status
+from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
 from .models import *
 from .permissions import *
@@ -8,6 +8,7 @@ from .paginations import *
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
+from rest_framework.parsers import MultiPartParser, FileUploadParser
 
 
 class ClassListCreateView(generics.ListCreateAPIView):
@@ -76,7 +77,6 @@ class StudentListView(generics.ListAPIView):
         return User.objects.filter(classes=self.kwargs['pk'])
 
 
-# GET assignments/
 # 모든 assignments list 반환
 class AssignmentListCreateView(generics.ListCreateAPIView):
     queryset = Assignment.objects.all()
@@ -93,7 +93,6 @@ class AssignmentListCreateView(generics.ListCreateAPIView):
 
 
 
-# GET, PUT, PATCH, DELETE assignments/<int:pk>/
 # pk번째 assignments detail 반환, 수정, 삭제
 class AssignmentClassView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Assignment.objects.all()
@@ -128,7 +127,6 @@ class AssignmentClassView(generics.RetrieveUpdateDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
-# GET assignments/class/<int:pk>/
 # pk번째 class의 모든 assignment list 반환
 class AssignmentListByLectureView(generics.ListAPIView):
     serializer_class = AssignmentCreateSerializer
@@ -141,7 +139,6 @@ class AssignmentListByLectureView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-# GET assignments/student/
 # 학생이 자신의 모든 assignment list 반환
 class AssignmentListByStudentView(generics.ListAPIView):
     serializer_class = AssignmentCreateSerializer
@@ -155,7 +152,6 @@ class AssignmentListByStudentView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
-# GET assignments/grade/<int:pk>/
 # 학생이 pk번째 assignment 점수, 제출여부, 채점여부 확인
 class AssignmentGradeGetView(generics.RetrieveAPIView):
     serializer_class = AssignmentToStudentSerializer
@@ -168,7 +164,6 @@ class AssignmentGradeGetView(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
-# PUT(PATCH) assignments/grading/<int:pk>/
 # 교수자가 pk번째 assignments 채점. 학번, 점수 입력
 class AssignmentGradingView(generics.UpdateAPIView):
     queryset = Assignment.objects.all()
@@ -266,3 +261,28 @@ class CommentCreateView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class AssignmentUploadView(views.APIView):
+    parser_classes = [MultiPartParser, ]
+    permission_classes = [IsQualified]
+
+    def put(self, request, pk, format=None):
+        if 'file' not in request.data:
+            Response(status=status.HTTP_400_BAD_REQUEST)
+        file_obj = request.data.get('file',None)
+        obj = AssignmentToStudent.objects.get(assignment=pk, student=self.request.user)
+        obj.file.save(file_obj.name, file_obj, save=True)
+        obj.is_submitted = True
+        obj.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class AssignmentDownloadView(generics.RetrieveAPIView):
+    queryset = Assignment.objects.all()
+    serializer_class = AssignmentFileSerializer
+    permission_classes = [IsQualified]
+
+    def get(self, request, *args, **kwargs):
+        instance = AssignmentToStudent.objects.get(assignment=self.kwargs['pk'], student=self.request.user)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

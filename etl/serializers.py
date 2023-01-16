@@ -44,13 +44,13 @@ class AssignmentCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignment
-        fields = ['id', 'lecture', 'name', 'due_date', 'max_grade', 'weight']
+        fields = ['id', 'lecture', 'name', 'due_date', 'max_grade', 'weight', 'file']
 
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
-        fields = ['id', 'lecture', 'created_by', 'name', 'due_date', 'max_grade', 'weight']
+        fields = ['id', 'lecture', 'created_by', 'name', 'due_date', 'max_grade', 'weight', 'file']
 
 
 class AssignmentToStudentSerializer(serializers.ModelSerializer):
@@ -132,3 +132,7 @@ class AnnouncementCreateSerializer(serializers.ModelSerializer):
 
         return post
 
+class AssignmentFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssignmentToStudent
+        fields = ['id', 'file']
