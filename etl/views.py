@@ -1,4 +1,4 @@
-from authentication.serializers import UserLoginSerializer
+from authentication.serializers import UserDetailSerializer
 from .serializers import *
 from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
@@ -179,11 +179,11 @@ class AssignmentGradingView(generics.UpdateAPIView):
         return super().patch(request, *args, **kwargs)
 
 
-# 디버깅용 모든 유저의 정보를 보는 View
-# class UserListView(generics.ListAPIView):
-#     permission_classes = [IsAdmin]
-#     queryset = User.objects.all()
-#     serializer_class = UserDetailSerializer
+#디버깅용 모든 유저의 정보를 보는 View
+class UserListView(generics.ListAPIView):
+    permission_classes = [IsAdmin]
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
 
 class AnnouncementListView(generics.ListAPIView):
     pagination_class = PostListPagination

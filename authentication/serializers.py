@@ -8,7 +8,11 @@ from rest_framework.validators import UniqueValidator
 class UserLoginSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=100, required=True)
     password = serializers.CharField(max_length=100, required=True, write_only=True)
-    classes = ClassSerializer(many=True)
+    username = serializers.CharField(read_only=True)
+    student_id = serializers.CharField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
+    is_professor = serializers.BooleanField(read_only=True)
+    classes = ClassSerializer(many=True, read_only=True)
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -40,8 +44,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    is_professor = serializers.BooleanField(required=True)
+    student_id = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+
+    def validate_student_id(self, value: str):
+        if len(value) != 10:
+            raise serializers.ValidationError('student_id should be 10 length')
+        if value[4] != '-':
+            raise serializers.ValidationError('student_id form should be XXXX-XXXXX')
+        try:
+            User.objects.get(student_id=value)
+            raise serializers.ValidationError('already existing student_id')
+        except User.DoesNotExist:
+            pass
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(validated_data['email'], validated_data['password'])
@@ -62,3 +79,11 @@ class UserIDSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email']
+
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    new_password = serializers.CharField(required=True, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['new_password']
