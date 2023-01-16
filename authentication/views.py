@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, views
 from authentication.serializers import *
 from rest_framework.response import Response
 from django.contrib.auth.models import update_last_login
@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-
+from rest_framework.parsers import MultiPartParser
 
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
@@ -138,3 +138,14 @@ def kakao_callback(request):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     # return redirect(f"{BASE_URL}etl/announcement/")
     return redirect("https://www.naver.com")
+
+class ProfileUploadView(views.APIView):
+    parser_classes = [MultiPartParser, ]
+    permission_classes = [IsQualified]
+
+    def put(self, request, format=None):
+        if 'file' not in request.data:
+            Response(status=status.HTTP_400_BAD_REQUEST)
+        profile_obj = request.data.get('file',None)
+        self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
+        return Response(status=status.HTTP_201_CREATED)
