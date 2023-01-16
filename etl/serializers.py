@@ -10,6 +10,12 @@ class UserSimpleSerializer(serializers.ModelSerializer):
 
 
 class ClassSerializer(serializers.ModelSerializer):
+    class ProfessorSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = ['username']
+
+    created_by = ProfessorSerializer(read_only=True)
 
     def to_internal_value(self, data):
         internal_value = super().to_internal_value(data)
@@ -17,7 +23,7 @@ class ClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Class
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'created_by']
 
 
 class EnrollDropSerializer(serializers.ModelSerializer):
@@ -129,7 +135,6 @@ class AnnouncementCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         post = Post.objects.create(title=validated_data['title'], created_by=validated_data['created_by'], created_at=validated_data['created_at'], is_announcement=True)
         post.save()
-
         return post
 
 class AssignmentFileSerializer(serializers.ModelSerializer):
