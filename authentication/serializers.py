@@ -40,7 +40,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
+        fields = ['id', 'email', 'username', 'student_id', 'profile', 'is_professor', 'is_superuser', 'classes']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
