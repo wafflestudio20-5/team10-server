@@ -20,6 +20,13 @@ from django.contrib.auth.hashers import check_password
 class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
+    @swagger_auto_schema(
+        operation_description=swaggers.register_operation_description,
+        responses=swaggers.register_responses
+    )
+    def post(self, request, *args, **kwargs):
+        super().post(self, request, *args, **kwargs)
+
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
@@ -49,7 +56,11 @@ class LoginAPI(generics.CreateAPIView):
 class IdCheckAPI(generics.CreateAPIView):
     serializer_class = UserIDSerializer
 
-    def create(self, request, *args, **kwargs):
+    @swagger_auto_schema(
+        operation_description=swaggers.idcheck_operation_description,
+        responses=swaggers.idcheck_operation_responses,
+    )
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({"email": "valid"}, status=status.HTTP_200_OK)
@@ -59,7 +70,10 @@ class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
-    @swagger_auto_schema(responses=swaggers.logout_responses)
+    @swagger_auto_schema(
+        operation_description=swaggers.logout_operation_description,
+        responses=swaggers.logout_responses,
+    )
     def get(self, request, *args, **kwargs):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
@@ -136,6 +150,7 @@ def kakao_callback(request):
     # return redirect(f"{BASE_URL}etl/announcement/")
     return redirect("https://www.naver.com")
 
+
 class ProfileUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
     permission_classes = [IsQualified]
@@ -148,16 +163,23 @@ class ProfileUploadView(views.APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class DropOutView(generics.DestroyAPIView):
+class DeleteStudentView(generics.DestroyAPIView):
     queryset = User.objects.all()
+
+    @swagger_auto_schema(
+        operation_description=swaggers.delete_student_operation_description
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(self, request, *args, **kwargs)
 
 
 class ChangePasswordView(generics.CreateAPIView):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_description=swaggers.change_password_operation_description,
-                         responses=swaggers.change_password_responses)
+    @swagger_auto_schema(request_body=swaggers.change_password_request,
+                         responses=swaggers.change_password_responses,
+                         )
     def post(self, request, *args, **kwargs):
         new_password = request.data['new_password']
         if len(new_password) < 8:
