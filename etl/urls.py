@@ -35,3 +35,4 @@ urlpatterns = [
     path('question/delete/<int:pk>/', QuestionDeleteView.as_view(), name='question_delete'),
 ]
 
+urlpatterns = format_suffix_patterns(urlpatterns)
