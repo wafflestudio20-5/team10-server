@@ -11,5 +11,6 @@ urlpatterns = [
     path('idcheck/', IdCheckAPI.as_view()),
     path('kakao/login/', kakao_login, name='kakao_login'),
     path('kakao/callback/', kakao_callback, name='kakao_callback'),
+    path('profile/', ProfileUploadView.as_view()),
 ]
 
