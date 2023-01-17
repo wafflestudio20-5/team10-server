@@ -16,14 +16,18 @@ class ClassListCreateView(generics.ListCreateAPIView):
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
 
-    @swagger_auto_schema(operation_description=swaggers.etl_class_get_operation_description)
+    @swagger_auto_schema(
+        operation_description=swaggers.class_get_operation_description
+    )
     def get(self, request, *args, **kwargs):
-        return super().get(self, request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description=swaggers.etl_class_post_operation_description,
-                         request_body=swaggers.etl_class_post_request_body)
+    @swagger_auto_schema(
+        operation_description=swaggers.class_post_operation_description,
+        request_body=swaggers.class_post_request_body
+    )
     def post(self, request, *args, **kwargs):
-        return super().post(self, request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
 
 class ProfessorClassListCreateView(generics.ListCreateAPIView):
@@ -33,23 +37,23 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Class.objects.filter(created_by=self.request.user)
 
-    @swagger_auto_schema(operation_description=swaggers.etl_class_professor_get_description)
+    @swagger_auto_schema(operation_description=swaggers.class_professor_get_operation_description)
     def get(self, request, *args, **kwargs):
-        return super().get(self, request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description=swaggers.etl_class_professor_post_description,
-                         request_body=swaggers.etl_class_post_request_body)
+    @swagger_auto_schema(operation_description=swaggers.class_professor_post_operation_description,
+                         request_body=swaggers.class_post_request_body)
     def post(self, request, *args, **kwargs):
-        return super().post(self, request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
 
 class ClassDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAdmin | IsCreatorReadOnly]
     queryset = Class.objects.all()
 
-    @swagger_auto_schema(operation_description=swaggers.etl_class_delete_operation_description)
+    @swagger_auto_schema(operation_description=swaggers.class_delete_operation_description)
     def delete(self, request, *args, **kwargs):
-        return super().delete(self, request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class EnrollClassView(generics.CreateAPIView):
@@ -99,10 +103,10 @@ class StudentListView(generics.ListAPIView):
         return User.objects.filter(classes=self.kwargs['pk'])
 
     @swagger_auto_schema(
-        operation_description=swaggers.etl_class_user_list_operation_descritpion
+        operation_description=swaggers.class_user_list_operation_description
     )
     def get(self, request, *args, **kwargs):
-        return super().get(self, request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 # 모든 assignments list 반환
@@ -111,14 +115,17 @@ class AssignmentListCreateView(generics.ListCreateAPIView):
     serializer_class = AssignmentCreateSerializer
     permission_classes = [IsProfessorOrReadOnly | IsAdmin]
 
-    @swagger_auto_schema(operation_description="Assignment 생성 : 교수자가 Class id, 과제 name, due date, 최대 점수, 가중치 입력")
+    @swagger_auto_schema(
+        operation_description="Assignment 생성 : 교수자가 Class id, 과제 name, due date, 최대 점수, 가중치 입력",
+    )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description="Assignment list : 존재하는 모든 class의 모든 Assignment List 반환")
+    @swagger_auto_schema(
+        operation_description=swaggers.assignments_get_operation_description,
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
-
 
 
 # pk번째 assignments detail 반환, 수정, 삭제
@@ -138,19 +145,27 @@ class AssignmentClassView(generics.RetrieveUpdateDestroyAPIView):
             return [permission() for permission in permission_classes]
         return super().get_permissions()
 
-    @swagger_auto_schema(operation_description="Assignment Detail : id번째 Assignment의 정보 반환")
+    @swagger_auto_schema(
+        operation_description="Assignment Detail : id번째 Assignment의 정보 반환",
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description="Assignment 수정 : 교수자가 id번째 Assignment의 Class id, 과제 name, due date, 최대 점수, 가중치 모두 입력해 수정")
+    @swagger_auto_schema(
+        operation_description="Assignment 수정 : 교수자가 id번째 Assignment의 Class id, 과제 name, due date, 최대 점수, 가중치 모두 입력해 수정",
+    )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description="Assignment 수정 : 교수자가 id번째 Assignment의 Class id, 과제 name, due date, 최대 점수, 가중치 중 일부 입력해 수정")
+    @swagger_auto_schema(
+        operation_description="Assignment 수정 : 교수자가 id번째 Assignment의 Class id, 과제 name, due date, 최대 점수, 가중치 중 일부 입력해 수정",
+    )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description="Assignment 삭제 : 교수자가 id번째 Assignment 삭제")
+    @swagger_auto_schema(
+        operation_description="Assignment 삭제 : 교수자가 id번째 Assignment 삭제",
+    )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
 
@@ -163,9 +178,12 @@ class AssignmentListByLectureView(generics.ListAPIView):
     def get_queryset(self):
         return Assignment.objects.all().filter(lecture=self.kwargs['pk'])
 
-    @swagger_auto_schema(operation_description="Assignment list By Lecture : id번째 Class의 모든 Assignment List 반환")
+    @swagger_auto_schema(
+        operation_description="Assignment list By Lecture : id번째 Class의 모든 Assignment List 반환",
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
 
 # 학생이 자신의 모든 assignment list 반환
 class AssignmentListByStudentView(generics.ListAPIView):
@@ -175,7 +193,9 @@ class AssignmentListByStudentView(generics.ListAPIView):
     def get_queryset(self):
         return Assignment.objects.all().filter(student=self.request.user)
 
-    @swagger_auto_schema(operation_description="Assignment list By Student : 로그인 한 User의 모든 Assignment List 반환")
+    @swagger_auto_schema(
+        operation_description="Assignment list By Student : 로그인 한 User의 모든 Assignment List 반환",
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -198,20 +218,31 @@ class AssignmentGradingView(generics.UpdateAPIView):
     serializer_class = AssignmentGradingSerializer
     permission_classes = [IsCreatorReadOnly | IsAdmin]
 
-    @swagger_auto_schema(operation_description="Assignment 채점 : 교수자가 id번째 Assignment의 성적을 해당 학생의 user_id, 점수를 입력해 채점")
+    @swagger_auto_schema(
+        operation_description=swaggers.assignment_grading_put_operation_description,
+    )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description="Assignment 채점 : 교수자가 id번째 Assignment의 성적을 해당 학생의 user_id, 점수를 입력해 채점")
+    @swagger_auto_schema(
+        operation_description=swaggers.assignment_grading_patch_operation_description,
+    )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
 
 
-#디버깅용 모든 유저의 정보를 보는 View
+# 디버깅용 모든 유저의 정보를 보는 View
 class UserListView(generics.ListAPIView):
     permission_classes = [IsAdmin]
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
+
+    @swagger_auto_schema(
+        operation_description=swaggers.user_list_operation_description,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 class AnnouncementListView(generics.ListAPIView):
     pagination_class = PostListPagination
@@ -219,7 +250,7 @@ class AnnouncementListView(generics.ListAPIView):
     queryset = Post.objects.filter(is_announcement=True)
     serializer_class = PostSerializer
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         return Response(self.get_serializer(self.get_queryset(), many=True).data)
 
 
@@ -289,6 +320,7 @@ class CommentCreateView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class AssignmentUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
