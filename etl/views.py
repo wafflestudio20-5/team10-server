@@ -8,7 +8,7 @@ from .paginations import *
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
-from rest_framework.parsers import MultiPartParser, FileUploadParser
+from rest_framework.parsers import MultiPartParser
 
 
 class ClassListCreateView(generics.ListCreateAPIView):
@@ -57,7 +57,7 @@ class ClassDeleteView(generics.DestroyAPIView):
 
 
 class EnrollClassView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated & IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (~IsProfessor))]
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
@@ -76,7 +76,7 @@ class EnrollClassView(generics.CreateAPIView):
 
 
 class DropClassView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated & IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (~IsProfessor))]
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
@@ -244,82 +244,61 @@ class UserListView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class AnnouncementListView(generics.ListAPIView):
+class AnnouncementListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
-    # permission_classes = [IsQualified]
-    queryset = Post.objects.filter(is_announcement=True)
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
     serializer_class = PostSerializer
 
-    def get(self, request, *args, **kwargs):
-        return Response(self.get_serializer(self.get_queryset(), many=True).data)
+    def get_queryset(self):
+        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['lecture_id'] = self.kwargs['pk']
+        return context
 
 
-class AnnouncementDetailView(generics.RetrieveAPIView):
-    permission_classes = [IsQualified | IsAdmin]
+class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
 
 
-class AnnouncementCreateView(generics.CreateAPIView):
-    permission_classes = [IsProfessorOrReadOnly]
-    serializer_class = AnnouncementCreateSerializer
-
-
-class AnnouncementUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsProfessorOrReadOnly]
-    queryset = Post.objects.all()
-    serializer_class = PostDetailSerializer
-
-
-class AnnouncementDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsProfessorOrReadOnly]
-    queryset = Post.objects.all()
-    serializer_class = PostDetailSerializer
-
-
-class QuestionListView(generics.ListAPIView):
+class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
-    permission_classes = [IsQualified | IsAdmin]
-    queryset = Post.objects.filter(is_announcement=False)
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
     serializer_class = PostSerializer
 
-    def list(self, request, *args, **kwargs):
-        return Response(self.get_serializer(self.get_queryset(), many=True).data)
+    def get_queryset(self):
+        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['lecture_id'] = self.kwargs['pk']
+        return context
 
 
 class QuestionDetailView(generics.RetrieveAPIView):
-    permission_classes = [IsQualified | IsAdmin]
-    queryset = Post.objects.all()
-    serializer_class = PostDetailSerializer
-
-
-class QuestionCreateView(generics.CreateAPIView):
-    permission_classes = [IsQualified | IsAdmin]
-    serializer_class = PostCreateSerializer
-
-
-class QuestionUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsQualified | IsAdmin]
-    queryset = Post.objects.all()
-    serializer_class = PostDetailSerializer
-
-
-class QuestionDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsQualified | IsAdmin]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessor | IsCreatorReadOnly))]
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
 
 
 class CommentCreateView(generics.CreateAPIView):
-    permission_classes = [IsQualified | IsAdmin]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessorOrReadOnly | IsCreatorReadOnly))]
     serializer_class = CommentSerializer
+    queryset = Comment.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        comment = Comment.objects.create(post_id=self.kwargs['pk'], content=request.data['content'], created_by=request.user)
-        serializer = CommentSerializer(comment)
-        headers = self.get_success_headers(serializer.data)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['post_id'] = self.kwargs['pk']
+        return context
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
+    serializer_class = CommentDetailSerializer
+    queryset = Comment.objects.all()
 
 
 class AssignmentUploadView(views.APIView):
