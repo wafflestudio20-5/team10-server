@@ -19,19 +19,22 @@ from django.contrib.auth.hashers import check_password
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
+    permission_classes = [~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.register_operation_description,
         responses=swaggers.register_responses
     )
     def post(self, request, *args, **kwargs):
-        super().post(self, request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
+    permission_classes = [~IsAuthenticated]
 
     @swagger_auto_schema(
+        operation_description=swaggers.login_operation_description,
         request_body=swaggers.login_request_body,
         responses=swaggers.login_responses,
     )
@@ -55,6 +58,7 @@ class LoginAPI(generics.CreateAPIView):
 
 class IdCheckAPI(generics.CreateAPIView):
     serializer_class = UserIDSerializer
+    permission_classes = [~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.idcheck_operation_description,
@@ -165,21 +169,24 @@ class ProfileUploadView(views.APIView):
 
 class DeleteStudentView(generics.DestroyAPIView):
     queryset = User.objects.all()
+    permission_classes = [IsAdmin | DoesUserMatchRequest]
 
     @swagger_auto_schema(
         operation_description=swaggers.delete_student_operation_description
     )
     def delete(self, request, *args, **kwargs):
-        return super().delete(self, request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class ChangePasswordView(generics.CreateAPIView):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(request_body=swaggers.change_password_request,
-                         responses=swaggers.change_password_responses,
-                         )
+    @swagger_auto_schema(
+        operation_description=swaggers.change_password_operation_description,
+        request_body=swaggers.change_password_request,
+        responses=swaggers.change_password_responses,
+    )
     def post(self, request, *args, **kwargs):
         new_password = request.data['new_password']
         if len(new_password) < 8:
