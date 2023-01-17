@@ -16,6 +16,15 @@ class ClassListCreateView(generics.ListCreateAPIView):
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
 
+    @swagger_auto_schema(operation_description=swaggers.etl_class_get_operation_description)
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_description=swaggers.etl_class_post_operation_description,
+                         request_body=swaggers.etl_class_post_request_body)
+    def post(self, request, *args, **kwargs):
+        return super().post(self, request, *args, **kwargs)
+
 
 class ProfessorClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessor)]
@@ -24,10 +33,23 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Class.objects.filter(created_by=self.request.user)
 
+    @swagger_auto_schema(operation_description=swaggers.etl_class_professor_get_description)
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_description=swaggers.etl_class_professor_post_description,
+                         request_body=swaggers.etl_class_post_request_body)
+    def post(self, request, *args, **kwargs):
+        return super().post(self, request, *args, **kwargs)
+
 
 class ClassDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAdmin | IsCreatorReadOnly]
     queryset = Class.objects.all()
+
+    @swagger_auto_schema(operation_description=swaggers.etl_class_delete_operation_description)
+    def delete(self, request, *args, **kwargs):
+        return super().delete(self, request, *args, **kwargs)
 
 
 class EnrollClassView(generics.CreateAPIView):
@@ -75,6 +97,12 @@ class StudentListView(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(classes=self.kwargs['pk'])
+
+    @swagger_auto_schema(
+        operation_description=swaggers.etl_class_user_list_operation_descritpion
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
 
 
 # 모든 assignments list 반환

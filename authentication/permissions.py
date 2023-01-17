@@ -12,8 +12,12 @@ class DoesUserMatchRequest(permissions.BasePermission):
             return True
         return False
 
+
 class IsQualified(permissions.BasePermission):
     def has_permission(self, request, view):
-        if(request.user.is_superuser):
-            return True
         return bool(request.user.username is not None and request.user.student_id is not None)
+
+
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser
