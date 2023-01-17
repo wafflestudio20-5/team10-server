@@ -19,12 +19,22 @@ from django.contrib.auth.hashers import check_password
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
+    permission_classes = [~IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description=swaggers.register_operation_description,
+        responses=swaggers.register_responses
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
+    permission_classes = [~IsAuthenticated]
 
     @swagger_auto_schema(
+        operation_description=swaggers.login_operation_description,
         request_body=swaggers.login_request_body,
         responses=swaggers.login_responses,
     )
@@ -48,8 +58,13 @@ class LoginAPI(generics.CreateAPIView):
 
 class IdCheckAPI(generics.CreateAPIView):
     serializer_class = UserIDSerializer
+    permission_classes = [~IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
+    @swagger_auto_schema(
+        operation_description=swaggers.idcheck_operation_description,
+        responses=swaggers.idcheck_operation_responses,
+    )
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({"email": "valid"}, status=status.HTTP_200_OK)
@@ -59,6 +74,10 @@ class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
+    @swagger_auto_schema(
+        operation_description=swaggers.logout_operation_description,
+        responses=swaggers.logout_responses,
+    )
     def get(self, request, *args, **kwargs):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
@@ -135,6 +154,7 @@ def kakao_callback(request):
     # return redirect(f"{BASE_URL}etl/announcement/")
     return redirect("https://www.naver.com")
 
+
 class ProfileUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
     permission_classes = [IsQualified]
@@ -147,19 +167,33 @@ class ProfileUploadView(views.APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class DropOutView(generics.DestroyAPIView):
+class DeleteStudentView(generics.DestroyAPIView):
     queryset = User.objects.all()
+    permission_classes = [IsAdmin | DoesUserMatchRequest]
+
+    @swagger_auto_schema(
+        operation_description=swaggers.delete_student_operation_description
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
 
 
 class ChangePasswordView(generics.CreateAPIView):
     serializer_class = ChangePasswordSerializer
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_description=swaggers.change_password_operation_description,
+        request_body=swaggers.change_password_request,
+        responses=swaggers.change_password_responses,
+    )
     def post(self, request, *args, **kwargs):
         new_password = request.data['new_password']
+        if len(new_password) < 8:
+            return Response({"error": "too short password. password length should be >=8."}, status=status.HTTP_400_BAD_REQUEST)
         same_with_before_password = check_password(new_password, request.user.password)
         if same_with_before_password:
-            return Response({"error": "same with previous password"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "same with previous password."}, status=status.HTTP_400_BAD_REQUEST)
         request.user.set_password(new_password)
         request.user.save()
-        return Response({"success": "new password has been set"}, status=status.HTTP_201_CREATED)
+        return Response({"success": "new password has been set."}, status=status.HTTP_201_CREATED)

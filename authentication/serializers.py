@@ -47,6 +47,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     student_id = serializers.CharField(required=True)
     username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    is_professor = serializers.BooleanField(required=True)
 
     def validate_student_id(self, value: str):
         if len(value) != 10:
