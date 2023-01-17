@@ -263,6 +263,21 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
 
+    @swagger_auto_schema(
+        operation_description=swaggers.announcement_get_operation_description,
+        responses=swaggers.post_detail_responses,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.announcement_patch_operation_description,
+        request_body=swaggers.announcement_patch_request_body,
+        responses=swaggers.post_detail_responses,
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
 
 class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
