@@ -87,44 +87,64 @@ class AssignmentGradingSerializer(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'score']
 
 
-class PostSerializer(serializers.ModelSerializer):
-    created_by = UserSimpleSerializer(read_only=True)
-
-    class Meta:
-        model = Post
-        fields = ['id', 'title', 'created_by', 'created_at']
-
-
 class CommentSerializer(serializers.ModelSerializer):
+    created_by = UserSimpleSerializer(read_only=True)
 
     def to_internal_value(self, data):
         internal_value = super().to_internal_value(data)
-        return {**internal_value, 'created_by': self.context['request'].user}
+        return {
+            **internal_value,
+            'created_by': self.context['request'].user,
+            'post': Post.objects.get(id=self.context['post_id']),
+        }
 
     class Meta:
         model = Comment
-        fields = ['content', 'created_by', 'created_at']
+        fields = ['id', 'content', 'created_by', 'created_at']
 
 
-class PostCreateSerializer(serializers.ModelSerializer):
+class CommentDetailSerializer(serializers.ModelSerializer):
+    created_by = UserSimpleSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'created_by', 'created_at']
+
+
+class PostSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
 
     def to_internal_value(self, data):
         internal_value = super().to_internal_value(data)
-        return {**internal_value, 'created_by': self.context['request'].user}
+        return {
+            **internal_value,
+            'created_by': self.context['request'].user,
+            'lecture': Class.objects.get(id=self.context['lecture_id']),
+            'is_announcement': True
+        }
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['content'] = instance.content[:10]
+        return rep
 
     class Meta:
         model = Post
-        fields = ['title', 'created_by', 'created_at', 'content']
+        fields = ['id', 'title', 'created_by', 'created_at', 'content']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['created_by'] = instance.created_by.username
+        return rep
+
     class Meta:
         model = Post
-        fields = ['title', 'created_by', 'created_at', 'content', 'comment']
+        fields = ['id', 'title', 'created_by', 'created_at', 'content', 'comment']
 
 
 class AnnouncementCreateSerializer(serializers.ModelSerializer):
@@ -136,6 +156,7 @@ class AnnouncementCreateSerializer(serializers.ModelSerializer):
         post = Post.objects.create(title=validated_data['title'], created_by=validated_data['created_by'], created_at=validated_data['created_at'], is_announcement=True)
         post.save()
         return post
+
 
 class AssignmentFileSerializer(serializers.ModelSerializer):
     class Meta:
