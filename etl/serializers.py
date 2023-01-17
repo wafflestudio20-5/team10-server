@@ -144,7 +144,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'created_by', 'created_at', 'content', 'comment']
+        fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment']
 
 
 class AnnouncementCreateSerializer(serializers.ModelSerializer):
