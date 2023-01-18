@@ -11,6 +11,7 @@ import etl.swaggers as swaggers
 from rest_framework.parsers import MultiPartParser
 
 
+# TODO: 페이지네이션 추가해야 함
 class ClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
     queryset = Class.objects.all()
@@ -24,7 +25,8 @@ class ClassListCreateView(generics.ListCreateAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.class_post_operation_description,
-        request_body=swaggers.class_post_request_body
+        request_body=swaggers.class_post_request_body,
+        responses=swaggers.class_post_responses,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -37,12 +39,17 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Class.objects.filter(created_by=self.request.user)
 
-    @swagger_auto_schema(operation_description=swaggers.class_professor_get_operation_description)
+    @swagger_auto_schema(
+        operation_description=swaggers.class_professor_get_operation_description,
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description=swaggers.class_professor_post_operation_description,
-                         request_body=swaggers.class_post_request_body)
+    @swagger_auto_schema(
+        operation_description=swaggers.class_professor_post_operation_description,
+        request_body=swaggers.class_post_request_body,
+        responses=swaggers.class_professor_post_responses,
+    )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
@@ -51,7 +58,9 @@ class ClassDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAdmin | IsCreatorReadOnly]
     queryset = Class.objects.all()
 
-    @swagger_auto_schema(operation_description=swaggers.class_delete_operation_description)
+    @swagger_auto_schema(
+        operation_description=swaggers.class_delete_operation_description,
+    )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
 
@@ -61,8 +70,9 @@ class EnrollClassView(generics.CreateAPIView):
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
-        request_body=swaggers.enroll_request_body,
-        responses=swaggers.enroll_responses,
+        operation_description=swaggers.class_enroll_operation_description,
+        request_body=swaggers.class_enroll_request_body,
+        responses=swaggers.class_enroll_responses,
     )
     def post(self, request, *args, **kwargs):
         class_id = int(request.data['class_id'])
@@ -80,8 +90,9 @@ class DropClassView(generics.CreateAPIView):
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
-        request_body=swaggers.drop_request_body,
-        responses=swaggers.drop_responses,
+        operation_description=swaggers.class_drop_operation_description,
+        request_body=swaggers.class_drop_request_body,
+        responses=swaggers.class_drop_responses,
     )
     def post(self, request, *args, **kwargs):
         class_id = int(request.data['class_id'])
@@ -103,7 +114,8 @@ class StudentListView(generics.ListAPIView):
         return User.objects.filter(classes=self.kwargs['pk'])
 
     @swagger_auto_schema(
-        operation_description=swaggers.class_user_list_operation_description
+        operation_description=swaggers.class_user_list_operation_description,
+        responses=swaggers.class_user_list_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -257,6 +269,21 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
         context['lecture_id'] = self.kwargs['pk']
         return context
 
+    @swagger_auto_schema(
+        operation_description=swaggers.class_announcements_get_operation_description,
+        responses=swaggers.post_list_responses,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_announcements_post_operation_description,
+        request_body=swaggers.post_post_request_body,
+        responses=swaggers.post_post_responses,
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
@@ -272,11 +299,17 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.announcement_patch_operation_description,
-        request_body=swaggers.announcement_patch_request_body,
+        request_body=swaggers.post_patch_request_body,
         responses=swaggers.post_detail_responses,
     )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.announcement_delete_operation_description,
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
 
 
 class QuestionListCreateView(generics.ListCreateAPIView):
@@ -292,15 +325,52 @@ class QuestionListCreateView(generics.ListCreateAPIView):
         context['lecture_id'] = self.kwargs['pk']
         return context
 
+    @swagger_auto_schema(
+        operation_description=swaggers.class_questions_get_operation_description,
+        responses=swaggers.post_list_responses,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-class QuestionDetailView(generics.RetrieveAPIView):
+    @swagger_auto_schema(
+        operation_description=swaggers.class_questions_post_operation_description,
+        request_body=swaggers.post_post_request_body,
+        responses=swaggers.post_post_responses,
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessor | IsCreatorReadOnly))]
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
 
+    @swagger_auto_schema(
+        operation_description=swaggers.question_get_operation_description,
+        responses=swaggers.post_detail_responses,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.question_patch_operation_description,
+        request_body=swaggers.post_patch_request_body,
+        responses=swaggers.post_detail_responses,
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.question_delete_operation_description,
+    )
+    def delete(self, request, *args, **kwargs):
+
+        return super().delete(request, *args, **kwargs)
+
 
 class CommentCreateView(generics.CreateAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessorOrReadOnly | IsCreatorReadOnly))]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
@@ -309,11 +379,40 @@ class CommentCreateView(generics.CreateAPIView):
         context['post_id'] = self.kwargs['pk']
         return context
 
+    @swagger_auto_schema(
+        operation_description=swaggers.post_comments_post_operation_description,
+        request_body=swaggers.post_comments_post_request_body,
+        responses=swaggers.post_comments_post_responses,
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessorOrReadOnly | IsCreatorReadOnly))]
     serializer_class = CommentDetailSerializer
     queryset = Comment.objects.all()
+
+    @swagger_auto_schema(
+        operation_description=swaggers.comment_get_operation_description,
+        responses=swaggers.comment_get_responses,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.comment_patch_operation_description,
+        request_body=swaggers.comment_patch_request_body,
+        responses=swaggers.comment_patch_responses,
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.comment_delete_operation_description,
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
 
 
 class AssignmentUploadView(views.APIView):
