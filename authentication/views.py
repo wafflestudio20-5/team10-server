@@ -83,7 +83,7 @@ class LogoutAPI(generics.RetrieveAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-BASE_URL = 'http://localhost:3000/'
+BASE_URL = 'https://test-project10.onrender.com'
 
 
 # exception
@@ -147,7 +147,7 @@ def kakao_callback(request):
         Token.objects.create(user=user)
         user.set_unusable_password()
         user.save()
-        return redirect(f"{BASE_URL}authentication/set/{user.id}/")
+        return redirect("https://www.naver.com")
 
     messages.success(request, f"{user.email} signed up and logged in with Kakao")
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
