@@ -83,7 +83,7 @@ class LogoutAPI(generics.RetrieveAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-BASE_URL = 'http://localhost:8000/'
+BASE_URL = 'http://localhost:3000/'
 
 
 # exception
@@ -99,7 +99,7 @@ def kakao_login(request):
     # if request.user.is_authenticated:
     #     raise SocialLoginException("User already logged in, 1")
     kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-    redirect_uri = "http://localhost:8000/authentication/kakao/callback/"
+    redirect_uri = "http://localhost:3000/authentication/kakao/callback/"
     client_id = "52dd93ef1080aec2f79528f6aa8a9d68"
 
     return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
@@ -116,7 +116,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": "52dd93ef1080aec2f79528f6aa8a9d68",
-        "redirection_uri": "http://localhost:8000/authentication/kakao/callback/",
+        "redirection_uri": "http://localhost:3000/authentication/kakao/callback/",
         "code": code
     }
 
