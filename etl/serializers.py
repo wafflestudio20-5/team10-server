@@ -111,8 +111,13 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'content', 'created_by', 'created_at']
 
 
+# TODO: comment_count 추가된 것 확인, 동작 확인.
 class PostSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
+    comment_count = serializers.IntegerField(
+        source='comment.count',
+        read_only=True,
+    )
 
     def to_internal_value(self, data):
         internal_value = super().to_internal_value(data)
@@ -130,7 +135,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'created_by', 'created_at', 'content']
+        fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment_count']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
