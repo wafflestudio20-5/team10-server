@@ -16,6 +16,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Create .env
+        env:
+          LOCAL_HOST: ${{ secrets.local_host }}
+        run:
+          touch .env
+          echo LOCAL_HOST="$LOCAL_HOST" >> .env
+          cat .env
+
       - name: Git clone on our repo
         uses: actions/checkout@v2
 
