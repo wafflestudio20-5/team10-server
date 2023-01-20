@@ -39,16 +39,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      - name: Setup python3.6-dev
-        run: sudo apt-get install python3-dev
-      - name: Setup libssl-dev
-        run: sudo apt-get install libssl-dev
-      - name: Setup mysql-server
-        run: sudo apt-get mysql-server
-      - name: Setup mysql-client
-        run: sudo apt-get mysql-client
-      - name: Setup libmysqlclient-dev
-        run: sudo apt-get install libmysqlclient-dev
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
