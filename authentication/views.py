@@ -14,6 +14,10 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from rest_framework.parsers import MultiPartParser
 from django.contrib.auth.hashers import check_password
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.http import JsonResponse
+from allauth.socialaccount.models import SocialAccount
 
 
 # Create your views here.
@@ -39,21 +43,11 @@ class LoginAPI(generics.CreateAPIView):
         responses=swaggers.login_responses,
     )
     def post(self, request, *args, **kwargs):
-        email = request.data.get('email', None)
-        password = request.data.get('password', None)
-        user = authenticate(email=email, password=password)
-        if user is None:
-            return Response({"error": "email or password is not correct"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            update_last_login(None, user)
-            token, _ = Token.objects.get_or_create(user=user)
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                'User with given email and password does not exists'
-            )
-        serializer = UserLoginSerializer(user)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data
+
+        return Response({'success': True, 'token': token}, status=status.HTTP_200_OK)
 
 
 class IdCheckAPI(generics.CreateAPIView):
@@ -83,76 +77,70 @@ class LogoutAPI(generics.RetrieveAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-BASE_URL = 'https://test-project10.onrender.com'
+# BASE_URL = 'https://test-project10.onrender.com'
+BASE_URL = 'http://localhost:8000/'
+KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 
-# exception
-class SocialLoginException(Exception):
-    pass
+class KakaoLoginView(APIView):
+    def get(self, request):
+        kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
+        redirect_uri = KAKAO_CALLBACK_URI
+        client_id = "52dd93ef1080aec2f79528f6aa8a9d68"
+
+        return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
 
-class KakaoException(Exception):
-    pass
+class KakaoCallBackView(APIView):
+    def get(self, request):
+        code = request.GET.get("code", None)
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": "52dd93ef1080aec2f79528f6aa8a9d68",
+            "redirection_uri": "http://localhost:8000/authentication/kakao/callback/",
+            "code": code
+        }
 
+        kakao_token_api = "https://kauth.kakao.com/oauth/token"
+        access_token_json = requests.post(kakao_token_api, data=data).json()
 
-def kakao_login(request):
-    # if request.user.is_authenticated:
-    #     raise SocialLoginException("User already logged in, 1")
-    kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-    redirect_uri = "http://localhost:3000/authentication/kakao/callback/"
-    client_id = "52dd93ef1080aec2f79528f6aa8a9d68"
+        access_token = access_token_json["access_token"]
+        user_info = requests.get("https://kapi.kakao.com/v2/user/me", headers={"Authorization": f"Bearer {access_token}"})
+        user_json = user_info.json()
 
-    return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
+        kakao_account = user_json.get("kakao_account")
+        email = kakao_account.get("email", None)
 
+        try:
+            user = User.objects.get(email=email)
+            update_last_login(None, user)
+            token = RefreshToken.for_user(user=user)
 
-def kakao_callback(request):
-    # if request.user.is_authenticated:
-    #     raise SocialLoginException("User already logged in, 2")
+            data = {
+                'user': user.id,
+                'refresh_token': str(token),
+                'access_token': str(token.access_token)
+            }
 
-    code = request.GET.get("code", None)
-    if code is None:
-        KakaoException("Can't get code")
+            return JsonResponse(data)
 
-    data = {
-        "grant_type": "authorization_code",
-        "client_id": "52dd93ef1080aec2f79528f6aa8a9d68",
-        "redirection_uri": "http://localhost:3000/authentication/kakao/callback/",
-        "code": code
-    }
+        except User.DoesNotExist:
+            user = User.objects.create_user(email=email)
+            user.is_social_login = True
+            user.save()
+            SocialAccount.objects.create(user=user)
 
-    kakao_token_api = "https://kauth.kakao.com/oauth/token"
-    access_token_json = requests.post(kakao_token_api, data=data).json()
+            update_last_login(None, user)
+            token = RefreshToken.for_user(user=user)
 
-    error = access_token_json.get("error", None)
+            data = {
+                'user': user.id,
+                'refresh_token': str(token),
+                'access_token': str(token.access_token)
+            }
 
-    if error is not None:
-        print(error)
-        KakaoException("Can't get access token")
-
-    access_token = access_token_json["access_token"]
-    user_info = requests.get("https://kapi.kakao.com/v2/user/me",
-                             headers={"Authorization": f'Bearer ${access_token}'}).json()
-
-    kakao_id = user_info.get("id")
-    kakao_account = user_info.get("kakao_account")
-    email = kakao_account.get("email", None)
-
-    try:
-        user = User.objects.get(email=email)
-    except ObjectDoesNotExist:
-        user = None
-
-    if user is None:
-        user = User.objects.create_user(email=email)
-        Token.objects.create(user=user)
-        user.set_unusable_password()
-        user.save()
-        return redirect("https://www.naver.com")
-
-    messages.success(request, f"{user.email} signed up and logged in with Kakao")
-    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    # return redirect(f"{BASE_URL}etl/announcement/")
-    return redirect("https://www.naver.com")
+            # return redirect(f"{BASE_URL}authentication/set/{user.id}/")
+            return JsonResponse(data)
 
 
 class ProfileUploadView(views.APIView):
