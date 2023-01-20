@@ -18,9 +18,11 @@ jobs:
     steps:
       - name: Create .env
         env:
+          SECRET_KEY: ${{ secrets.secret_key }}
           LOCAL_HOST: ${{ secrets.local_host }}
         run:
           touch .env
+          echo SECRET_KEY="$SECRET_KEY" >> .env
           echo LOCAL_HOST="$LOCAL_HOST" >> .env
           cat .env
 
