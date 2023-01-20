@@ -1,31 +1,20 @@
+from rest_framework import serializers
 from etl.serializers import ClassSerializer
 from .models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
-from rest_framework_jwt.settings import api_settings
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import update_last_login
-from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import update_last_login
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=100, required=True)
-    password = serializers.CharField(max_length=100, required=True, write_only=True, style={'input_type': 'password'})
-    # classes = ClassSerializer(many=True)
-    # token = serializers.CharField(max_length=255, read_only=True)
-
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser']
-
-    # def to_representation(self, instance):
-    #     rep = super().to_representation(instance)
-    #     try:
-    #         rep['token'] = instance.auth_token.key
-    #     except:
-    #         rep['token'] = 'no token. please contact developers'
-    #     return rep
+    password = serializers.CharField(max_length=100, required=True, write_only=True)
+    username = serializers.CharField(read_only=True)
+    student_id = serializers.CharField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
+    is_professor = serializers.BooleanField(read_only=True)
+    classes = ClassSerializer(many=True, read_only=True)
 
     def validate(self, data):
         email = data.get('email', None)
@@ -51,6 +40,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
         return data
 
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     classes = ClassSerializer(many=True)
@@ -65,17 +58,27 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
+        fields = ['id', 'email', 'username', 'student_id', 'profile', 'is_professor', 'is_superuser', 'classes']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'}, validators=[validate_password])
+    student_id = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     is_professor = serializers.BooleanField(required=True)
 
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor']
+    def validate_student_id(self, value: str):
+        if len(value) != 10:
+            raise serializers.ValidationError('student_id should be 10 length')
+        if value[4] != '-':
+            raise serializers.ValidationError('student_id form should be XXXX-XXXXX')
+        try:
+            User.objects.get(student_id=value)
+            raise serializers.ValidationError('already existing student_id')
+        except User.DoesNotExist:
+            pass
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(validated_data['email'], validated_data['password'])
@@ -87,6 +90,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor']
+
 
 class UserIDSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
@@ -94,3 +101,11 @@ class UserIDSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email']
+
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    new_password = serializers.CharField(required=True, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['new_password']

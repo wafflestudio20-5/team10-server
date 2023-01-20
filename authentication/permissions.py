@@ -11,3 +11,13 @@ class DoesUserMatchRequest(permissions.BasePermission):
         if request.user == User.objects.get(id=user_id):
             return True
         return False
+
+
+class IsQualified(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user.username is not None and request.user.student_id is not None)
+
+
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser

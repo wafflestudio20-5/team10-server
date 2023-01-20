@@ -19,6 +19,7 @@ class Assignment(models.Model):
     max_grade = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],)
     student = models.ManyToManyField(User, related_name='assignments', through="AssignmentToStudent")
+    file = models.FileField(null=True, upload_to="assignments/", blank=True)
 
 
 class Post(models.Model):
@@ -45,3 +46,4 @@ class AssignmentToStudent(models.Model):
     is_submitted = models.BooleanField(default=False)
     is_graded = models.BooleanField(default=False)
     score = models.FloatField(default=0)
+    file = models.FileField(null=True, upload_to="submissions/", blank=True)
