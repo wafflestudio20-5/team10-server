@@ -32,7 +32,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="mit"),     # 부가정보
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [

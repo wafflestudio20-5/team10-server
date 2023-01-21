@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
-import datetime
+import os.path
 from pathlib import Path
-from datetime import timedelta
+import os
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,13 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n)+x1edk-o6n%kh86fjlkz-f#rtfz0ocdl!7jzr8e^u!5+lg0='
-ALGORITHM = 'HS256'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['etl-dxnn.onrender.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST'), '127.0.0.1']
 
 # Application definition
 
@@ -43,65 +43,22 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'rest_framework',
-    'rest_framework_jwt',
-    'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-	'rest_framework_simplejwt.token_blacklist',
     'authentication.apps.AuthenticationConfig',
     'etl.apps.EtlConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.kakao',
 ]
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.TokenAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#     ],
-#     'DATETIME_FORMAT': '%s000',
-# }
-
-
 REST_FRAMEWORK = {
-    # 모든 API -> 기본적으로 인증이 필요하게 됨
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ),
-    #
-    # 'DEFAULT_RENDERER_CLASSES': (
-    #     'rest_framework.renderers.JSONRenderer',
-    #     'rest_framework.renderers.BrowsableAPIRenderer',
-    # ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        # 'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
     'DATETIME_FORMAT': '%s000',
 }
-
-REST_USE_JWT = True
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'TOKEN_USER_CLASS': 'authentication.User',
-}
-
-# JWT_AUTH = {
-#     'JWT_SECRET_KEY': SECRET_KEY,
-#     'JWT_ALGORITHM': 'HS256',  # 암호화 알고리즘
-#     'JWT_ALLOW_REFRESH': True,
-#     'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=2),  # 유효기간 설정
-#     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=3),  # JWT 토큰 갱신 유효기간
-# }
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -122,7 +79,8 @@ ROOT_URLCONF = 'team10_server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates']
+        ,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -143,8 +101,15 @@ WSGI_APPLICATION = 'team10_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DATABASE_ENGINE'),
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
+        'OPTIONS': {
+            'init_command': os.environ.get('DATABASE_OPTIONS_INIT_COMMAND')
+        }
     }
 }
 
@@ -167,7 +132,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -184,6 +148,9 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -212,19 +179,19 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SITE_ID = 7
+SITE_ID = 3
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'kakao': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online'
-#         }
-#     }
-# }
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online'
+        }
+    }
+}
 
 # LOGIN_REDIRECT_URL = '/accounts/login'
 
