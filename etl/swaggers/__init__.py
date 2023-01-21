@@ -1,7 +1,7 @@
 from .class_enroll import *
 from .class_drop import *
 from .class_ import *
-from .class_professor import *
+from .classes_professor import *
 from .class_user_list import *
 from .assignments import *
 from .announcement import *
@@ -10,3 +10,4 @@ from .class_announcements import *
 from .class_questions import *
 from .comment import *
 from .post_comments import *
+from .classes import *

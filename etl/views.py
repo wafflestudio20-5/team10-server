@@ -17,15 +17,15 @@ class ClassListCreateView(generics.ListCreateAPIView):
     serializer_class = ClassSerializer
 
     @swagger_auto_schema(
-        operation_description=swaggers.class_get_operation_description
+        operation_description=swaggers.classes_get_operation_description
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description=swaggers.class_post_operation_description,
-        request_body=swaggers.class_post_request_body,
-        responses=swaggers.class_post_responses,
+        operation_description=swaggers.classes_post_operation_description,
+        request_body=swaggers.classes_post_request_body,
+        responses=swaggers.classes_post_responses,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -46,7 +46,7 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.class_professor_post_operation_description,
-        request_body=swaggers.class_post_request_body,
+        request_body=swaggers.classes_post_request_body,
         responses=swaggers.class_professor_post_responses,
     )
     def post(self, request, *args, **kwargs):
