@@ -200,3 +200,16 @@ class ChangePasswordView(generics.CreateAPIView):
         request.user.set_password(new_password)
         request.user.save()
         return Response({"success": "new password has been set."}, status=status.HTTP_201_CREATED)
+
+
+# 디버깅용 모든 유저의 정보를 보는 View
+class UserListView(generics.ListAPIView):
+    permission_classes = [IsAdmin]
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+
+    @swagger_auto_schema(
+        operation_description=swaggers.user_list_operation_description,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

@@ -1,4 +1,3 @@
-from authentication.serializers import UserDetailSerializer
 from .serializers import *
 from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
@@ -243,19 +242,6 @@ class AssignmentGradingView(generics.UpdateAPIView):
         return super().patch(request, *args, **kwargs)
 
 
-# 디버깅용 모든 유저의 정보를 보는 View
-class UserListView(generics.ListAPIView):
-    permission_classes = [IsAdmin]
-    queryset = User.objects.all()
-    serializer_class = UserDetailSerializer
-
-    @swagger_auto_schema(
-        operation_description=swaggers.user_list_operation_description,
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
 class AnnouncementListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
@@ -271,15 +257,15 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.class_announcements_get_operation_description,
-        responses=swaggers.post_list_responses,
+        responses=swaggers.class_announcements_get_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.class_announcements_post_operation_description,
-        request_body=swaggers.post_post_request_body,
-        responses=swaggers.post_post_responses,
+        request_body=swaggers.class_announcements_post_request_body,
+        responses=swaggers.class_announcements_post_responses,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -292,15 +278,15 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.announcement_get_operation_description,
-        responses=swaggers.post_detail_responses,
+        responses=swaggers.announcement_get_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.announcement_patch_operation_description,
-        request_body=swaggers.post_patch_request_body,
-        responses=swaggers.post_detail_responses,
+        request_body=swaggers.announcement_patch_request_body,
+        responses=swaggers.announcement_patch_responses,
     )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
@@ -327,15 +313,15 @@ class QuestionListCreateView(generics.ListCreateAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_get_operation_description,
-        responses=swaggers.post_list_responses,
+        responses=swaggers.class_questions_get_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_post_operation_description,
-        request_body=swaggers.post_post_request_body,
-        responses=swaggers.post_post_responses,
+        request_body=swaggers.class_questions_post_request_body,
+        responses=swaggers.class_questions_post_responses,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -348,15 +334,15 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     @swagger_auto_schema(
         operation_description=swaggers.question_get_operation_description,
-        responses=swaggers.post_detail_responses,
+        responses=swaggers.question_get_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.question_patch_operation_description,
-        request_body=swaggers.post_patch_request_body,
-        responses=swaggers.post_detail_responses,
+        request_body=swaggers.question_patch_request_body,
+        responses=swaggers.question_patch_responses,
     )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
@@ -423,7 +409,7 @@ class AssignmentUploadView(views.APIView):
     def put(self, request, pk, format=None):
         if 'file' not in request.data:
             Response(status=status.HTTP_400_BAD_REQUEST)
-        file_obj = request.data.get('file',None)
+        file_obj = request.data.get('file', None)
         obj = AssignmentToStudent.objects.get(assignment=pk, student=self.request.user)
         obj.file.save(file_obj.name, file_obj, save=True)
         obj.is_submitted = True
@@ -441,6 +427,7 @@ class AssignmentDownloadView(generics.RetrieveAPIView):
         instance = AssignmentToStudent.objects.get(assignment=self.kwargs['pk'], student=self.request.user)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
 
 class AssignmentDownloadByUserIDView(generics.RetrieveAPIView):
     queryset = Assignment.objects.all()
