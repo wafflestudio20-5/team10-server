@@ -4,13 +4,12 @@ from .views import *
 
 
 urlpatterns = [
-    path('class/', ClassListCreateView.as_view()),
-    path('class/professor/', ProfessorClassListCreateView.as_view()),
+    path('classes/', ClassListCreateView.as_view()),
+    path('classes/professor/', ProfessorClassListCreateView.as_view()),
     path('class/<int:pk>/', ClassDeleteView.as_view()),
     path('class/enroll/', EnrollClassView.as_view()),
     path('class/drop/', DropClassView.as_view()),
     path('class/<int:pk>/user-list/', StudentListView.as_view()),
-    path('user-list/', UserListView.as_view()),
 
     # 과제
     path('assignments/', AssignmentListCreateView.as_view()),

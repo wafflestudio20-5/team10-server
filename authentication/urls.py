@@ -13,6 +13,7 @@ urlpatterns = [
     path('kakao/callback/', kakao_callback, name='kakao_callback'),
     path('profile/', ProfileUploadView.as_view()),
     path('change-password/', ChangePasswordView.as_view()),
+    path('user-list/', UserListView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
