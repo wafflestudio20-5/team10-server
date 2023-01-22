@@ -439,3 +439,13 @@ class AssignmentDownloadByUserIDView(generics.RetrieveAPIView):
         instance = AssignmentToStudent.objects.get(assignment=self.kwargs['pk'], student=self.kwargs['user_pk'])
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+class AssignmentGradeListView(generics.ListAPIView):
+    serializer_class = AssignmentToStudentSerializer
+    permission_classes = [IsQualified]
+    def get_queryset(self):
+        assignments = Assignment.objects.all().filter(lecture=self.kwargs['pk'])
+        query = []
+        for i in assignments:
+            query.append(AssignmentToStudent.objects.get(assignment=i,student=self.request.user))
+        return query
