@@ -53,14 +53,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     classes = ClassSerializer(many=True)
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        try:
-            rep['token'] = instance.auth_token.key
-        except:
-            rep['token'] = 'no token. please contact developers'
-        return rep
-
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'student_id', 'profile', 'is_professor', 'is_superuser', 'classes']
