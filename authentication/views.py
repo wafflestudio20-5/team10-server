@@ -18,6 +18,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # Create your views here.
@@ -73,8 +74,11 @@ class LogoutAPI(generics.RetrieveAPIView):
         responses=swaggers.logout_responses,
     )
     def get(self, request, *args, **kwargs):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
+        response = JsonResponse({
+            "message": "success"
+        })
+        response.delete_cookie('jwt')
+        return response
 
 
 # BASE_URL = 'https://test-project10.onrender.com'

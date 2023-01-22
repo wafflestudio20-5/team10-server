@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from .views import *
+from rest_framework_simplejwt import views as jwt_views
 
 
 urlpatterns = [
@@ -13,6 +14,8 @@ urlpatterns = [
     path('kakao/callback/', KakaoCallBackView.as_view()),
     path('profile/', ProfileUploadView.as_view()),
     path('change-password/', ChangePasswordView.as_view()),
+    path('token/', jwt_views.TokenObtainPairView.as_view()),
+    path('token/refresh/', jwt_views.TokenRefreshView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
