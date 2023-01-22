@@ -21,6 +21,7 @@ urlpatterns = [
     path('assignments/<int:pk>/upload/', AssignmentUploadView.as_view()),
     path('assignments/<int:pk>/download/', AssignmentDownloadView.as_view()),
     path('assignments/<int:pk>/user/<int:user_pk>/download/', AssignmentDownloadView.as_view()),
+    path('assignments/class/<int:pk>/totalscore/',AssignmentGradeListView.as_view()),
 
     # 공지사항 게시판
     path('class/<int:pk>/announcements/', AnnouncementListCreateView.as_view()),
