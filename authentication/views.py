@@ -65,6 +65,10 @@ class IdCheckAPI(generics.CreateAPIView):
         return Response({"email": "valid"}, status=status.HTTP_200_OK)
 
 
+
+
+
+
 class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer

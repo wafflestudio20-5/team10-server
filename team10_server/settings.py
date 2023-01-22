@@ -60,6 +60,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.kakao',
 ]
 
+
+
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -223,15 +227,3 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SITE_ID = 3
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online'
-#         }
-#     }
-# }
