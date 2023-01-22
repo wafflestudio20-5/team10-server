@@ -20,7 +20,7 @@ from allauth.socialaccount.models import SocialAccount
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
-    permission_classes = [~IsAuthenticated]
+    permission_classes = [IsAdmin | ~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.register_operation_description,
@@ -32,7 +32,7 @@ class RegisterAPI(generics.CreateAPIView):
 
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
-    permission_classes = [~IsAuthenticated]
+    permission_classes = [IsAdmin | ~IsAuthenticated]
 
     # TODO: swagger 수정 필요
     @swagger_auto_schema(
@@ -44,7 +44,6 @@ class LoginAPI(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = serializer.validated_data
-
         return Response({'success': True, 'token': token}, status=status.HTTP_200_OK)
 
 
