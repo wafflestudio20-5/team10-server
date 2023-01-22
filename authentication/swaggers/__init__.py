@@ -4,4 +4,4 @@ from .delete_student import *
 from .register import *
 from .idcheck import *
 from .logout import *
-from .user_list import *
+from .users import *
