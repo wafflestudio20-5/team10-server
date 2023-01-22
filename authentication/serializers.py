@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
+import re
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -20,11 +21,15 @@ class UserLoginSerializer(serializers.ModelSerializer):
         email = data.get('email', None)
         password = data.get('password', None)
 
+        regex = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+        if not regex.match(email):
+            raise serializers.ValidationError("Invalid email format")
+
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
 
             if not user.check_password(password):
-                raise serializers.ValidationError('Check Your Email or Password')
+                raise serializers.ValidationError('Wrong password')
 
         else:
             raise serializers.ValidationError("User does not exist")
@@ -33,7 +38,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
         token = RefreshToken.for_user(user=user)
 
         data = {
-            'user': user.id,
+            'user_id': user.id,
             'refresh_token': str(token),
             'access_token': str(token.access_token)
         }
