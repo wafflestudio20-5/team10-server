@@ -127,7 +127,8 @@ class AssignmentListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsProfessorOrReadOnly | IsAdmin]
 
     @swagger_auto_schema(
-        operation_description="<Content-Type : multipart/form-data 형식>\n Assignment 생성 : 교수자가 Class id, 과제 name, due date, 최대 점수, 가중치, 과제 파일(can be null) 입력\n과제 파일이 있다면 file : 파일 형식으로 추가로 담아주어야 함",
+        operation_description=swaggers.assignments_post_operation_description,
+        request_body=swaggers.assignments_post_request_body,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -157,25 +158,25 @@ class AssignmentClassView(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions()
 
     @swagger_auto_schema(
-        operation_description="Assignment Detail : id번째 Assignment의 정보 반환",
+        operation_description=swaggers.assignments_class_get_operation_description
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="<Content-Type : multipart/form-data 형식>\nAssignment 수정 : 교수자가 id번째 Assignment의 Class id, 과제 name, due date, 최대 점수, 가중치 모두 입력해 수정\n과제 파일이 있다면 file : 파일 형식으로 추가로 담아주어야 함",
+        operation_description=swaggers.assignments_class_put_operation_description
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="<Content-Type : multipart/form-data 형식>\nAssignment 수정 : 교수자가 id번째 Assignment의 Class id, 과제 name, due date, 최대 점수, 가중치, 과제 파일 중 일부 입력해 수정\n과제 파일이 있다면 file : 파일 형식으로 추가로 담아주어야 함",
+        operation_description=swaggers.assignments_class_patch_operation_description
     )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Assignment 삭제 : 교수자가 id번째 Assignment 삭제",
+        operation_description=swaggers.assignments_class_delete_operation_description
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
@@ -190,7 +191,7 @@ class AssignmentListByLectureView(generics.ListAPIView):
         return Assignment.objects.all().filter(lecture=self.kwargs['pk'])
 
     @swagger_auto_schema(
-        operation_description="Assignment list By Lecture : id번째 Class의 모든 Assignment List 반환",
+        operation_description=swaggers.assignments_list_lecture_get_operation_description,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -205,7 +206,7 @@ class AssignmentListByStudentView(generics.ListAPIView):
         return Assignment.objects.all().filter(student=self.request.user)
 
     @swagger_auto_schema(
-        operation_description="Assignment list By Student : 로그인 한 User의 모든 Assignment List 반환",
+        operation_description=swaggers.assignments_list_student_get_operation_description,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -216,7 +217,9 @@ class AssignmentGradeGetView(generics.RetrieveAPIView):
     serializer_class = AssignmentToStudentSerializer
     permission_classes = [IsQualified]
 
-    @swagger_auto_schema(operation_description="Get Assignment Grade : 로그인 한 User의 id번째 Assignment의 채점 정보 반환(is_submited, is_graded, score)")
+    @swagger_auto_schema(
+        operation_description=swaggers.assignments_grade_get_operation_description,
+    )
     def get(self, request, *args, **kwargs):
         obj = AssignmentToStudent.objects.get(assignment=self.kwargs['pk'], student=self.request.user)
         serializer = AssignmentToStudentSerializer(obj)
@@ -230,13 +233,13 @@ class AssignmentGradingView(generics.UpdateAPIView):
     permission_classes = [IsCreatorReadOnly | IsAdmin]
 
     @swagger_auto_schema(
-        operation_description=swaggers.assignment_grading_put_operation_description,
+        operation_description=swaggers.assignments_grading_put_operation_description,
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description=swaggers.assignment_grading_patch_operation_description,
+        operation_description=swaggers.assignments_grading_patch_operation_description,
     )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
@@ -405,7 +408,10 @@ class AssignmentUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
     permission_classes = [IsQualified]
 
-    @swagger_auto_schema(operation_description="<Content-Type : multipart/form-data 형식>\nfile : 파일\n형식으로 학생 과제 파일만 넣어 요청하면 pk번째 과제에 현재 로그인 된 학생의 제출물이 업로드된다.")
+    @swagger_auto_schema(
+        operation_description=swaggers.assignments_upload_put_operation_description,
+        request_body=AssignmentFileSerializer
+    )
     def put(self, request, pk, format=None):
         if 'file' not in request.data:
             Response(status=status.HTTP_400_BAD_REQUEST)
@@ -422,7 +428,7 @@ class AssignmentDownloadView(generics.RetrieveAPIView):
     serializer_class = AssignmentFileSerializer
     permission_classes = [IsQualified]
 
-    @swagger_auto_schema(operation_description="pk번째 과제의 현재 접속한 학생의 제출물 링크를 반환한다. 없다면 file : null")
+    @swagger_auto_schema(operation_description=swaggers.assignments_download_get_operation_description)
     def get(self, request, *args, **kwargs):
         instance = AssignmentToStudent.objects.get(assignment=self.kwargs['pk'], student=self.request.user)
         serializer = self.get_serializer(instance)
@@ -434,7 +440,7 @@ class AssignmentDownloadByUserIDView(generics.RetrieveAPIView):
     serializer_class = AssignmentFileSerializer
     permission_classes = [IsCreatorReadOnly]
 
-    @swagger_auto_schema(operation_description="pk번째 과제와 user_pk번 학생의 제출물 링크를 반환한다. 없다면 file : null")
+    @swagger_auto_schema(operation_description=swaggers.assignments_user_download_get_operation_description)
     def get(self, request, *args, **kwargs):
         instance = AssignmentToStudent.objects.get(assignment=self.kwargs['pk'], student=self.kwargs['user_pk'])
         serializer = self.get_serializer(instance)
@@ -449,3 +455,9 @@ class AssignmentGradeListView(generics.ListAPIView):
         for i in assignments:
             query.append(AssignmentToStudent.objects.get(assignment=i,student=self.request.user))
         return query
+
+    @swagger_auto_schema(
+        operation_description=swaggers.assignments_class_total_get_operation_description
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

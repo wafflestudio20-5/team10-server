@@ -5,3 +5,4 @@ from .register import *
 from .idcheck import *
 from .logout import *
 from .users import *
+from .profile import *

@@ -4,6 +4,10 @@ from .class_ import *
 from .classes_professor import *
 from .class_user_list import *
 from .assignments import *
+from .assignments_class import *
+from .assignments_file import *
+from .assignments_grade import *
+from .assignments_list import *
 from .announcement import *
 from .question import *
 from .class_announcements import *
