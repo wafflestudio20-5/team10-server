@@ -160,7 +160,7 @@ class ProfileUploadView(views.APIView):
 
 class DeleteStudentView(generics.DestroyAPIView):
     queryset = User.objects.all()
-    permission_classes = [IsAdmin | DoesUserMatchRequest]
+    permission_classes = [IsAdmin | DoesUserMatchRequestOrReadOnly]
 
     @swagger_auto_schema(
         operation_description=swaggers.delete_student_operation_description
@@ -201,3 +201,6 @@ class UserListView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+
