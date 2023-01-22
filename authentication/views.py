@@ -160,17 +160,6 @@ class ProfileUploadView(views.APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class DeleteStudentView(generics.DestroyAPIView):
-    queryset = User.objects.all()
-    permission_classes = [IsAdmin | DoesUserMatchRequest]
-
-    @swagger_auto_schema(
-        operation_description=swaggers.delete_student_operation_description
-    )
-    def delete(self, request, *args, **kwargs):
-        return super().delete(request, *args, **kwargs)
-
-
 class ChangePasswordView(generics.CreateAPIView):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
@@ -203,3 +192,18 @@ class UserListView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAdmin | (IsAuthenticated & DoesUserMatchRequestOrReadOnly)]
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, *kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
