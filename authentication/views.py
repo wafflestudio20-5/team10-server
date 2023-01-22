@@ -6,15 +6,19 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import *
 import authentication.swaggers as swaggers
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.authtoken.models import Token
 import requests
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 from rest_framework.parsers import MultiPartParser
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
-import os
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # Create your views here.
@@ -34,7 +38,6 @@ class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
     permission_classes = [~IsAuthenticated]
 
-    # TODO: swagger 수정
     @swagger_auto_schema(
         operation_description=swaggers.login_operation_description,
         request_body=swaggers.login_request_body,
@@ -71,8 +74,11 @@ class LogoutAPI(generics.RetrieveAPIView):
         responses=swaggers.logout_responses,
     )
     def get(self, request, *args, **kwargs):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
+        response = JsonResponse({
+            "message": "success"
+        })
+        response.delete_cookie('jwt')
+        return response
 
 
 # BASE_URL = 'https://test-project10.onrender.com'
@@ -82,9 +88,9 @@ KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 class KakaoLoginView(APIView):
     def get(self, request):
-        kakao_api = os.environ.get('KAKAO_API')
+        kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
         redirect_uri = KAKAO_CALLBACK_URI
-        client_id = os.environ.get('KAKAO_CLIENT_ID')
+        client_id = "52dd93ef1080aec2f79528f6aa8a9d68"
 
         return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
@@ -94,7 +100,7 @@ class KakaoCallBackView(APIView):
         code = request.GET.get("code", None)
         data = {
             "grant_type": "authorization_code",
-            "client_id": os.environ.get('KAKAO_CLIENT_ID'),
+            "client_id": "52dd93ef1080aec2f79528f6aa8a9d68",
             "redirection_uri": "http://localhost:8000/authentication/kakao/callback/",
             "code": code
         }
@@ -186,18 +192,3 @@ class ChangePasswordView(generics.CreateAPIView):
         request.user.set_password(new_password)
         request.user.save()
         return Response({"success": "new password has been set."}, status=status.HTTP_201_CREATED)
-
-
-# 디버깅용 모든 유저의 정보를 보는 View
-class UserListView(generics.ListAPIView):
-    permission_classes = [IsAdmin]
-    queryset = User.objects.all()
-    serializer_class = UserDetailSerializer
-
-    @swagger_auto_schema(
-        operation_description=swaggers.users_operation_description,
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
