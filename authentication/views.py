@@ -195,7 +195,9 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserDetailSerializer
 
     @swagger_auto_schema(
-        operation_description=swaggers.user_list_operation_description,
+        operation_description=swaggers.users_operation_description,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
