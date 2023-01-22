@@ -6,12 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import *
 import authentication.swaggers as swaggers
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.authtoken.models import Token
 import requests
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
 from rest_framework.parsers import MultiPartParser
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
