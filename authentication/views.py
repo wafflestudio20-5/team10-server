@@ -15,6 +15,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
+from etl.serializers import AssignmentFileSerializer
 
 
 # Create your views here.
@@ -149,7 +150,8 @@ class ProfileUploadView(views.APIView):
     permission_classes = [IsQualified]
 
     @swagger_auto_schema(
-        operation_description="<Content-Type : multipart/form-data 형식>\nfile : 이미지 파일\n형식으로 이미자 파일 하나를 받아 사용자의 프로필 사진으로 업로드합니다."
+        operation_description=swaggers.profile_put_operation_description,
+        request_body=AssignmentFileSerializer
     )
     def put(self, request, format=None):
         if 'file' not in request.data:
