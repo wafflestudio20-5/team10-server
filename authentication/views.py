@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
+import os
 
 
 # Create your views here.
@@ -33,6 +34,7 @@ class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
     permission_classes = [~IsAuthenticated]
 
+    # TODO: swagger 수정
     @swagger_auto_schema(
         operation_description=swaggers.login_operation_description,
         request_body=swaggers.login_request_body,
@@ -80,9 +82,9 @@ KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 class KakaoLoginView(APIView):
     def get(self, request):
-        kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
+        kakao_api = os.environ.get('KAKAO_API')
         redirect_uri = KAKAO_CALLBACK_URI
-        client_id = "52dd93ef1080aec2f79528f6aa8a9d68"
+        client_id = os.environ.get('KAKAO_CLIENT_ID')
 
         return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
@@ -92,7 +94,7 @@ class KakaoCallBackView(APIView):
         code = request.GET.get("code", None)
         data = {
             "grant_type": "authorization_code",
-            "client_id": "52dd93ef1080aec2f79528f6aa8a9d68",
+            "client_id": os.environ.get('KAKAO_CLIENT_ID'),
             "redirection_uri": "http://localhost:8000/authentication/kakao/callback/",
             "code": code
         }
