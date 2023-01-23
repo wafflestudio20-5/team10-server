@@ -15,7 +15,6 @@ urlpatterns = [
     path('kakao/callback/', KakaoCallBackView.as_view()),
     path('profile/', ProfileUploadView.as_view()),
     path('change-password/', ChangePasswordView.as_view()),
-    path('token/', jwt_views.TokenObtainPairView.as_view()),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view()),
 ]
 
