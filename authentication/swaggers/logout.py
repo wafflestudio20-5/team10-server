@@ -3,7 +3,12 @@ from drf_yasg import openapi
 logout_responses = {
     200: openapi.Schema(
         type=openapi.TYPE_OBJECT,
-        description='로그아웃이 잘 되었다면, 아무것도 반환하지 않습니다.'
+        properties={
+            'success': openapi.Schema(
+                type=openapi.TYPE_BOOLEAN,
+                default=True
+            )
+        }
     )
 }
 

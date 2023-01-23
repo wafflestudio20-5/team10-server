@@ -35,7 +35,6 @@ class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
     permission_classes = [IsAdmin | ~IsAuthenticated]
 
-    # TODO: swagger 수정 필요
     @swagger_auto_schema(
         operation_description=swaggers.login_operation_description,
         request_body=swaggers.login_request_body,
@@ -50,7 +49,7 @@ class LoginAPI(generics.CreateAPIView):
 
 class IdCheckAPI(generics.CreateAPIView):
     serializer_class = UserIDSerializer
-    permission_classes = [~IsAuthenticated]
+    permission_classes = [IsAdmin | ~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.idcheck_operation_description,
@@ -66,13 +65,15 @@ class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
+    # TODO: 동작 방식을 분석해 swaggers.logout_operation_description, swaggers.logout_responses 수정 필요.
+    # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
     @swagger_auto_schema(
         operation_description=swaggers.logout_operation_description,
         responses=swaggers.logout_responses,
     )
     def get(self, request, *args, **kwargs):
         response = JsonResponse({
-            "message": "success"
+            "success": True
         })
         response.delete_cookie('jwt')
         return response
@@ -106,7 +107,8 @@ class KakaoCallBackView(APIView):
         access_token_json = requests.post(kakao_token_api, data=data).json()
 
         access_token = access_token_json["access_token"]
-        user_info = requests.get("https://kapi.kakao.com/v2/user/me", headers={"Authorization": f"Bearer {access_token}"})
+        user_info = requests.get("https://kapi.kakao.com/v2/user/me",
+                                 headers={"Authorization": f"Bearer {access_token}"})
         user_json = user_info.json()
 
         kakao_account = user_json.get("kakao_account")
@@ -155,7 +157,7 @@ class ProfileUploadView(views.APIView):
     def put(self, request, format=None):
         if 'file' not in request.data:
             Response(status=status.HTTP_400_BAD_REQUEST)
-        profile_obj = request.data.get('file',None)
+        profile_obj = request.data.get('file', None)
         self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
         return Response(status=status.HTTP_201_CREATED)
 
@@ -172,7 +174,8 @@ class ChangePasswordView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         new_password = request.data['new_password']
         if len(new_password) < 8:
-            return Response({"error": "too short password. password length should be >=8."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "too short password. password length should be >=8."},
+                            status=status.HTTP_400_BAD_REQUEST)
         same_with_before_password = check_password(new_password, request.user.password)
         if same_with_before_password:
             return Response({"error": "same with previous password."}, status=status.HTTP_400_BAD_REQUEST)
@@ -197,13 +200,27 @@ class UserListView(generics.ListAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
-    permission_classes = [IsAdmin | (IsAuthenticated & DoesUserMatchRequestOrReadOnly)]
+    permission_classes = [IsAdmin | (IsAuthenticated & DoesUserMatchRequest)]
 
+    @swagger_auto_schema(
+        operation_description=swaggers.user_get_operation_description,
+        responses=swaggers.user_get_responses,
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
+    # TODO: student_id의 경우 회원가입 시 엄격하게 테스트하지만, 아직 PATCH 요청 시 동일한 테스트를 수행하는 것이 존재하지 않음. validate 추가 필요.
+    # TODO: student_id validate 추가 시 swagger.user_patch_operation_description 수정 필요
+    @swagger_auto_schema(
+        operation_description=swaggers.user_patch_operation_description,
+        request_body=swaggers.user_patch_request_body,
+        responses=swaggers.user_patch_responses
+    )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, *kwargs)
 
+    @swagger_auto_schema(
+        operation_description=swaggers.user_delete_operation_description,
+    )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
