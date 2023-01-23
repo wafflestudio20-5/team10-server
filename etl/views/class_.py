@@ -1,5 +1,5 @@
 from etl.serializers import *
-from rest_framework import generics, status, views
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from etl.models import *
 from etl.permissions import *
@@ -7,7 +7,6 @@ from etl.paginations import *
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
-from rest_framework.parsers import MultiPartParser
 
 
 # TODO: 페이지네이션 추가해야 함
