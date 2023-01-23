@@ -142,11 +142,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['created_by'] = instance.created_by.username
-        return rep
-
     class Meta:
         model = Post
         fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment']
