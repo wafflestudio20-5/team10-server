@@ -30,13 +30,13 @@ assignments_post_operation_description = '기능\n' \
 assignments_post_request_body = openapi.Schema(
     'Assignment',
     type=openapi.TYPE_OBJECT,
-    required=['lecture','name','due_date','max_grade','weight'],
+    required=['lecture', 'name', 'due_date', 'max_grade', 'weight'],
     properties={
-        'lecture' : openapi.Schema(type=openapi.TYPE_INTEGER),
-        'name' : openapi.Schema(type=openapi.TYPE_STRING),
-        'due_date' : openapi.Schema(type=openapi.FORMAT_DATETIME),
-        'max_grade' : openapi.Schema(type=openapi.FORMAT_DOUBLE),
-        'weight' : openapi.Schema(type=openapi.FORMAT_DOUBLE),
-        'file' : openapi.Schema(type=openapi.TYPE_FILE)
+        'lecture': openapi.Schema(type=openapi.TYPE_INTEGER),
+        'name': openapi.Schema(type=openapi.TYPE_STRING),
+        'due_date': openapi.Schema(type=openapi.FORMAT_DATETIME),
+        'max_grade': openapi.Schema(type=openapi.FORMAT_DOUBLE),
+        'weight': openapi.Schema(type=openapi.FORMAT_DOUBLE),
+        'file': openapi.Schema(type=openapi.TYPE_FILE)
     }
 )
