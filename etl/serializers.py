@@ -125,7 +125,7 @@ class PostSerializer(serializers.ModelSerializer):
             **internal_value,
             'created_by': self.context['request'].user,
             'lecture': Class.objects.get(id=self.context['lecture_id']),
-            'is_announcement': True
+            'is_announcement': self.context['is_announcement']
         }
 
     def to_representation(self, instance):
@@ -141,11 +141,6 @@ class PostSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['created_by'] = instance.created_by.username
-        return rep
 
     class Meta:
         model = Post
