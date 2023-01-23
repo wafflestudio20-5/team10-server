@@ -125,7 +125,7 @@ class PostSerializer(serializers.ModelSerializer):
             **internal_value,
             'created_by': self.context['request'].user,
             'lecture': Class.objects.get(id=self.context['lecture_id']),
-            'is_announcement': True
+            'is_announcement': self.context['is_announcement']
         }
 
     def to_representation(self, instance):

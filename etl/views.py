@@ -256,6 +256,7 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['lecture_id'] = self.kwargs['pk']
+        context['is_announcement'] = True
         return context
 
     @swagger_auto_schema(
@@ -312,6 +313,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['lecture_id'] = self.kwargs['pk']
+        context['is_announcement'] = False
         return context
 
     @swagger_auto_schema(
