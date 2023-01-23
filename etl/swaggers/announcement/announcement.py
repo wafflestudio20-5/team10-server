@@ -57,7 +57,7 @@ announcement_get_responses = {
                 type=openapi.TYPE_STRING,
                 description='timestamp 형식으로 공지글 생성 시간을 반환합니다.'
             ),
-            'comments': openapi.Schema(
+            'comment': openapi.Schema(
                 type=openapi.TYPE_ARRAY,
                 description='해당 공지글에 달린 댓글 리스트입니다.',
                 items=openapi.Schema(
