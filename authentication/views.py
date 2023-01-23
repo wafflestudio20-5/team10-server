@@ -31,6 +31,7 @@ class RegisterAPI(generics.CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
+# TODO: 로그인 여러 번 시도해서 액세스 토큰을 새로 발급 받아도, 이전 액세스 토큰은 비활성화되지 않는 것이 정상이 맞나?(잘 모름)
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
     permission_classes = [IsAdmin | ~IsAuthenticated]
