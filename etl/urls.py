@@ -34,6 +34,13 @@ urlpatterns = [
     # 댓글
     path('post/<int:pk>/comments/', CommentCreateView.as_view()),
     path('comment/<int:pk>/', CommentDetailView.as_view()),
+
+    #모듈
+    path('module/weekly/', WeeklyCreateView.as_view()),
+    path('module/weekly/<int:pk>/', WeeklyDetailView.as_view()),
+    path('module/content/', ModuleContentCreateView.as_view()),
+    path('module/content/<int:pk>/', ModuleContentDetailView.as_view()),
+    path('module/class/<int:pk>/', WeeklyModuleByClassView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

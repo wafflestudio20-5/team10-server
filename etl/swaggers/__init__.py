@@ -15,3 +15,6 @@ from .class_questions import *
 from .comment import *
 from .post_comments import *
 from .classes import *
+from .module_weekly import *
+from .module_content import *
+from .module_class import *
