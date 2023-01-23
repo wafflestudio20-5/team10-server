@@ -5,8 +5,9 @@ module_class_get_operation_description = '기능\n' \
                                         '- 주차학습 -> 각 파일의 계층 구조로 되어있습니다.\n' \
                                         '- {id}에는 Class id가 들어갑니다.\n' \
                                         '\npermission\n' \
-                                        '- 로그인된 유저\n' \
+                                        '- admin 계정\n' \
+                                        '- 로그인 && 개인정보 세팅 완료\n' \
                                         '\nrequest body\n' \
                                         '- 아무것도 담지 않습니다.\n' \
                                         '\nresponse\n' \
-                                        '- 200:  module list'
+                                        '- 200: module list'

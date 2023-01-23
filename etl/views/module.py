@@ -1,19 +1,17 @@
 from etl.serializers import *
-from rest_framework import generics, status, views
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from etl.models import *
 from etl.permissions import *
-from etl.paginations import *
-from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
 from rest_framework.parsers import MultiPartParser
 
 
-#주차학습 create
+# 주차학습 create
 class WeeklyCreateView(generics.CreateAPIView):
     serializer_class = WeeklyCreateSerializer
-    permission_classes = [IsProfessorOrReadOnly]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
     queryset = Weekly.objects.all()
 
     @swagger_auto_schema(
@@ -26,20 +24,20 @@ class WeeklyCreateView(generics.CreateAPIView):
 
 class WeeklyDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WeeklyCreateSerializer
-    permission_classes = [IsCreatorReadOnly]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
     queryset = Weekly.objects.all()
 
 
 class ModuleContentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ModuleContentCreateSerializer
-    permission_classes = [IsCreatorReadOnly]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
     queryset = ModuleContent.objects.all()
     parser_classes = [MultiPartParser]
 
 
 class ModuleContentCreateView(generics.CreateAPIView):
     serializer_class = ModuleContentCreateSerializer
-    permission_classes = [IsProfessorOrReadOnly]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
     queryset = ModuleContent.objects.all()
     parser_classes = [MultiPartParser]
 
@@ -51,10 +49,10 @@ class ModuleContentCreateView(generics.CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
-#module list
+# module list
 class WeeklyModuleByClassView(generics.ListAPIView):
     serializer_class = ModuleSerializer
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     def get_queryset(self):
         return Module.objects.all().filter(lecture=self.kwargs['pk'])
