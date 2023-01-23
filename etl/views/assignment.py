@@ -3,7 +3,6 @@ from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
 from etl.models import *
 from etl.permissions import *
-from etl.paginations import *
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
@@ -14,7 +13,13 @@ from rest_framework.parsers import MultiPartParser
 class AssignmentListCreateView(generics.ListCreateAPIView):
     queryset = Assignment.objects.all()
     serializer_class = AssignmentCreateSerializer
-    permission_classes = [IsProfessorOrReadOnly | IsAdmin]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
+
+    @swagger_auto_schema(
+        operation_description=swaggers.assignments_get_operation_description,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.assignments_post_operation_description,
@@ -23,29 +28,12 @@ class AssignmentListCreateView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description=swaggers.assignments_get_operation_description,
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
 
 # pk번째 assignments detail 반환, 수정, 삭제
 class AssignmentClassView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Assignment.objects.all()
     serializer_class = AssignmentDetailSerializer
-    permission_list = {
-        'PATCH': [IsCreatorReadOnly | IsAdmin],
-        'PUT': [IsCreatorReadOnly | IsAdmin],
-        'DELETE': [IsCreatorReadOnly | IsAdmin],
-        'GET': [IsQualified]
-    }
-
-    def get_permissions(self):
-        if self.request.method in self.permission_list:
-            permission_classes = self.permission_list.get(self.request.method)
-            return [permission() for permission in permission_classes]
-        return super().get_permissions()
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
 
     @swagger_auto_schema(
         operation_description=swaggers.assignments_class_get_operation_description
@@ -75,7 +63,7 @@ class AssignmentClassView(generics.RetrieveUpdateDestroyAPIView):
 # pk번째 class의 모든 assignment list 반환
 class AssignmentListByLectureView(generics.ListAPIView):
     serializer_class = AssignmentCreateSerializer
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     def get_queryset(self):
         return Assignment.objects.all().filter(lecture=self.kwargs['pk'])
@@ -90,7 +78,7 @@ class AssignmentListByLectureView(generics.ListAPIView):
 # 학생이 자신의 모든 assignment list 반환
 class AssignmentListByStudentView(generics.ListAPIView):
     serializer_class = AssignmentCreateSerializer
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     def get_queryset(self):
         return Assignment.objects.all().filter(student=self.request.user)
@@ -105,7 +93,7 @@ class AssignmentListByStudentView(generics.ListAPIView):
 # 학생이 pk번째 assignment 점수, 제출여부, 채점여부 확인
 class AssignmentGradeGetView(generics.RetrieveAPIView):
     serializer_class = AssignmentToStudentSerializer
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     @swagger_auto_schema(
         operation_description=swaggers.assignments_grade_get_operation_description,
@@ -120,7 +108,7 @@ class AssignmentGradeGetView(generics.RetrieveAPIView):
 class AssignmentGradingView(generics.UpdateAPIView):
     queryset = Assignment.objects.all()
     serializer_class = AssignmentGradingSerializer
-    permission_classes = [IsCreatorReadOnly | IsAdmin]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
 
     @swagger_auto_schema(
         operation_description=swaggers.assignments_grading_put_operation_description,
@@ -137,7 +125,7 @@ class AssignmentGradingView(generics.UpdateAPIView):
 
 class AssignmentUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     @swagger_auto_schema(
         operation_description=swaggers.assignments_upload_put_operation_description,
@@ -157,7 +145,7 @@ class AssignmentUploadView(views.APIView):
 class AssignmentDownloadView(generics.RetrieveAPIView):
     queryset = Assignment.objects.all()
     serializer_class = AssignmentFileSerializer
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     @swagger_auto_schema(operation_description=swaggers.assignments_download_get_operation_description)
     def get(self, request, *args, **kwargs):
@@ -169,7 +157,7 @@ class AssignmentDownloadView(generics.RetrieveAPIView):
 class AssignmentDownloadByUserIDView(generics.RetrieveAPIView):
     queryset = Assignment.objects.all()
     serializer_class = AssignmentFileSerializer
-    permission_classes = [IsCreatorReadOnly]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
 
     @swagger_auto_schema(operation_description=swaggers.assignments_user_download_get_operation_description)
     def get(self, request, *args, **kwargs):
@@ -180,7 +168,7 @@ class AssignmentDownloadByUserIDView(generics.RetrieveAPIView):
 
 class AssignmentGradeListView(generics.ListAPIView):
     serializer_class = AssignmentToStudentSerializer
-    permission_classes = [IsQualified]
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     def get_queryset(self):
         assignments = Assignment.objects.all().filter(lecture=self.kwargs['pk'])
