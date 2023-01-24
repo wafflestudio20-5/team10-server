@@ -117,3 +117,21 @@ class StudentListView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+class ClassSearchView(generics.ListAPIView):
+    serializer_class = ClassSerializer
+    permissions = [IsAdmin | (IsAuthenticated & IsQualified)]
+    pagination_class = ClassListPagination
+
+    def get_queryset(self):
+        class_name = self.request.GET['class_name']
+        return Class.objects.filter(name__contains=class_name)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.classes_search_operation_description,
+        responses=swaggers.classes_search_responses,
+        manual_parameters=swaggers.classes_search_manual_parameters,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

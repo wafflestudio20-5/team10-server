@@ -10,3 +10,7 @@ class PostListPagination(CursorPagination):
     ordering = '-created_at'
     page_size = 10
 
+
+class ClassListPagination(CursorPagination):
+    ordering = 'name'
+    page_size = 10

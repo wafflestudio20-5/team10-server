@@ -54,10 +54,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.kakao',
 ]
 
-
-
-
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
