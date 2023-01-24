@@ -80,8 +80,11 @@ class LogoutAPI(generics.RetrieveAPIView):
         return response
 
 
-# BASE_URL = 'https://test-project10.onrender.com'
-BASE_URL = 'http://localhost:8000/'
+
+
+
+BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+# BASE_URL = 'http://localhost:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 
@@ -100,7 +103,7 @@ class KakaoCallBackView(APIView):
         data = {
             "grant_type": "authorization_code",
             "client_id": os.environ.get('KAKAO_CLIENT_ID'),
-            "redirection_uri": "http://localhost:8000/authentication/kakao/callback/",
+            "redirection_uri": f"{BASE_URL}authentication/kakao/callback/",
             "code": code
         }
 
