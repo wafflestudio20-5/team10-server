@@ -43,6 +43,14 @@ class_drop_responses = {
                             type=openapi.TYPE_STRING,
                             description='수업 이름',
                         ),
+                        'created_by': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                'username': openapi.Schema(
+                                    type=openapi.TYPE_STRING,
+                                )
+                            }
+                        )
                     }
                 )
             )

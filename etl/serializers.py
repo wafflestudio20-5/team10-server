@@ -21,6 +21,10 @@ class ClassSerializer(serializers.ModelSerializer):
         internal_value = super().to_internal_value(data)
         return {**internal_value, 'created_by': self.context['request'].user}
 
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        Module.objects.create(lecture=instance)
+        return instance
     class Meta:
         model = Class
         fields = ['id', 'name', 'created_by']
@@ -125,7 +129,7 @@ class PostSerializer(serializers.ModelSerializer):
             **internal_value,
             'created_by': self.context['request'].user,
             'lecture': Class.objects.get(id=self.context['lecture_id']),
-            'is_announcement': True
+            'is_announcement': self.context['is_announcement']
         }
 
     def to_representation(self, instance):
@@ -141,11 +145,6 @@ class PostSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['created_by'] = instance.created_by.username
-        return rep
 
     class Meta:
         model = Post
@@ -167,3 +166,29 @@ class AssignmentFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignmentToStudent
         fields = ['id', 'file']
+
+class ModuleContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ModuleContent
+        fields = ['file']
+
+class ModuleContentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ModuleContent
+        fields = ['weekly', 'file']
+class WeeklySerializer(serializers.ModelSerializer):
+    module_content = ModuleContentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Weekly
+        fields = ['id', 'name', 'module_content']
+
+class WeeklyCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Weekly
+        fields = ['id', 'module', 'name']
+
+class ModuleSerializer(serializers.ModelSerializer):
+    weekly = WeeklySerializer(many=True, read_only=True)
+    class Meta:
+        model = Module
+        fields = ['lecture', 'weekly']

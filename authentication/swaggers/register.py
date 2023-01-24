@@ -5,6 +5,7 @@ register_operation_description = '기능\n' \
                                  '-request body를 토대로 계정 생성\n' \
                                  '- 회원가입 성공 시, 방금 생성된 계정 정보를 반환\n' \
                                  '\n권한\n' \
+                                 '- 관리자 계정\n' \
                                  '- 로그인하지 않은 사용자\n' \
                                  '\nrequest body\n' \
                                  '- email(필수)\n' \

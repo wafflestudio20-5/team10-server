@@ -1,3 +1,4 @@
+import os
 from rest_framework import generics, status, views
 from authentication.serializers import *
 from rest_framework.response import Response
@@ -6,25 +7,21 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import *
 import authentication.swaggers as swaggers
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.authtoken.models import Token
 import requests
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
 from rest_framework.parsers import MultiPartParser
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from etl.serializers import AssignmentFileSerializer
 
 
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
-    permission_classes = [~IsAuthenticated]
+    permission_classes = [IsAdmin | ~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.register_operation_description,
@@ -34,9 +31,10 @@ class RegisterAPI(generics.CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
+# TODO: 로그인 여러 번 시도해서 액세스 토큰을 새로 발급 받아도, 이전 액세스 토큰은 비활성화되지 않는 것이 정상이 맞나?(잘 모름)
 class LoginAPI(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
-    permission_classes = [~IsAuthenticated]
+    permission_classes = [IsAdmin | ~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.login_operation_description,
@@ -47,13 +45,12 @@ class LoginAPI(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = serializer.validated_data
-
         return Response({'success': True, 'token': token}, status=status.HTTP_200_OK)
 
 
 class IdCheckAPI(generics.CreateAPIView):
     serializer_class = UserIDSerializer
-    permission_classes = [~IsAuthenticated]
+    permission_classes = [IsAdmin | ~IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description=swaggers.idcheck_operation_description,
@@ -65,24 +62,25 @@ class IdCheckAPI(generics.CreateAPIView):
         return Response({"email": "valid"}, status=status.HTTP_200_OK)
 
 
-
-
-
-
 class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
+    # TODO: 동작 방식을 분석해 swaggers.logout_operation_description, swaggers.logout_responses 수정 필요.
+    # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
     @swagger_auto_schema(
         operation_description=swaggers.logout_operation_description,
         responses=swaggers.logout_responses,
     )
     def get(self, request, *args, **kwargs):
         response = JsonResponse({
-            "message": "success"
+            "success": True
         })
         response.delete_cookie('jwt')
         return response
+
+
+
 
 
 BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
@@ -92,9 +90,9 @@ KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 class KakaoLoginView(APIView):
     def get(self, request):
-        kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
+        kakao_api = os.environ.get('KAKAO_API')
         redirect_uri = KAKAO_CALLBACK_URI
-        client_id = "52dd93ef1080aec2f79528f6aa8a9d68"
+        client_id = os.environ.get('KAKAO_CLIENT_ID')
 
         return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
@@ -104,8 +102,8 @@ class KakaoCallBackView(APIView):
         code = request.GET.get("code", None)
         data = {
             "grant_type": "authorization_code",
-            "client_id": "52dd93ef1080aec2f79528f6aa8a9d68",
-            "redirection_uri": KAKAO_CALLBACK_URI,
+            "client_id": os.environ.get('KAKAO_CLIENT_ID'),
+            "redirection_uri": f"{BASE_URL}authentication/kakao/callback/",
             "code": code
         }
 
@@ -113,7 +111,8 @@ class KakaoCallBackView(APIView):
         access_token_json = requests.post(kakao_token_api, data=data).json()
 
         access_token = access_token_json["access_token"]
-        user_info = requests.get("https://kapi.kakao.com/v2/user/me", headers={"Authorization": f"Bearer {access_token}"})
+        user_info = requests.get("https://kapi.kakao.com/v2/user/me",
+                                 headers={"Authorization": f"Bearer {access_token}"})
         user_json = user_info.json()
 
         kakao_account = user_json.get("kakao_account")
@@ -156,25 +155,15 @@ class ProfileUploadView(views.APIView):
     permission_classes = [IsQualified]
 
     @swagger_auto_schema(
-        operation_description="<Content-Type : multipart/form-data 형식>\nfile : 이미지 파일\n형식으로 이미자 파일 하나를 받아 사용자의 프로필 사진으로 업로드합니다."
+        operation_description=swaggers.profile_put_operation_description,
+        request_body=AssignmentFileSerializer
     )
     def put(self, request, format=None):
         if 'file' not in request.data:
             Response(status=status.HTTP_400_BAD_REQUEST)
-        profile_obj = request.data.get('file',None)
+        profile_obj = request.data.get('file', None)
         self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
         return Response(status=status.HTTP_201_CREATED)
-
-
-class DeleteStudentView(generics.DestroyAPIView):
-    queryset = User.objects.all()
-    permission_classes = [IsAdmin | DoesUserMatchRequest]
-
-    @swagger_auto_schema(
-        operation_description=swaggers.delete_student_operation_description
-    )
-    def delete(self, request, *args, **kwargs):
-        return super().delete(request, *args, **kwargs)
 
 
 class ChangePasswordView(generics.CreateAPIView):
@@ -189,10 +178,53 @@ class ChangePasswordView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         new_password = request.data['new_password']
         if len(new_password) < 8:
-            return Response({"error": "too short password. password length should be >=8."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "too short password. password length should be >=8."},
+                            status=status.HTTP_400_BAD_REQUEST)
         same_with_before_password = check_password(new_password, request.user.password)
         if same_with_before_password:
             return Response({"error": "same with previous password."}, status=status.HTTP_400_BAD_REQUEST)
         request.user.set_password(new_password)
         request.user.save()
         return Response({"success": "new password has been set."}, status=status.HTTP_201_CREATED)
+
+
+# 디버깅용 모든 유저의 정보를 보는 View
+class UserListView(generics.ListAPIView):
+    permission_classes = [IsAdmin]
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+
+    @swagger_auto_schema(
+        operation_description=swaggers.users_operation_description,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAdmin | (IsAuthenticated & DoesUserMatchRequest)]
+
+    @swagger_auto_schema(
+        operation_description=swaggers.user_get_operation_description,
+        responses=swaggers.user_get_responses,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    # TODO: student_id의 경우 회원가입 시 엄격하게 테스트하지만, 아직 PATCH 요청 시 동일한 테스트를 수행하는 것이 존재하지 않음. validate 추가 필요.
+    # TODO: student_id validate 추가 시 swagger.user_patch_operation_description 수정 필요
+    @swagger_auto_schema(
+        operation_description=swaggers.user_patch_operation_description,
+        request_body=swaggers.user_patch_request_body,
+        responses=swaggers.user_patch_responses
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, *kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.user_delete_operation_description,
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)

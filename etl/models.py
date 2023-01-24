@@ -47,3 +47,14 @@ class AssignmentToStudent(models.Model):
     is_graded = models.BooleanField(default=False)
     score = models.FloatField(default=0)
     file = models.FileField(null=True, upload_to="submissions/", blank=True)
+
+class Module(models.Model):
+    lecture = models.OneToOneField(Class, on_delete=models.CASCADE, related_name='module')
+
+class Weekly(models.Model):
+    name = models.CharField(max_length=50, null=True)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='weekly')
+
+class ModuleContent(models.Model):
+    weekly = models.ForeignKey(Weekly, on_delete=models.CASCADE, related_name='module_content')
+    file = models.FileField(null=True, upload_to="modules/", blank=True)
