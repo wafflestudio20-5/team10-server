@@ -1,6 +1,6 @@
 from drf_yasg import openapi
 
-# TODO: 댓글 갯수 기능 추가 후 비고 삭제
+# TODO: 댓글 수 기능 정상 구현 후 swagger 수정
 class_announcements_get_operation_description = '기능\n' \
                                                '- 특정 수업에 해당하는 모든 공지사항 목록을 가져옵니다.\n' \
                                                 '- {id}에는 class id가 들어갑니다.\n' \
@@ -13,7 +13,8 @@ class_announcements_get_operation_description = '기능\n' \
                                                 '\nresponses\n' \
                                                 '- 200: {id}에 해당하는 수업의 공지사항 목록 가져오기 성공\n' \
                                                 '\n비고\n' \
-                                                '- 해당 공지사항에 달린 댓굴의 갯수를 가져올 수 있도록 기능을 추가할 예정입니다.'
+                                                '- 공지사항에 달린 댓글에 갯수를 나타내는 "comment_count"가 response에 ' \
+                                                '추가되었지만, 아직 기능이 미구현되어 항상 0을 반환합니다.'
 
 class_announcements_get_responses = {
     200: openapi.Schema(
@@ -73,6 +74,10 @@ class_announcements_get_responses = {
                         'created_at': openapi.Schema(
                             type=openapi.TYPE_STRING,
                             description='timestamp 형식으로 공지글 생성 시간을 반환합니다.'
+                        ),
+                        'comment_count': openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description='해당 공지글에 달린 댓글 수입니다.'
                         ),
                     }
                 )
@@ -151,6 +156,10 @@ class_announcements_post_responses = {
             'created_at': openapi.Schema(
                 type=openapi.TYPE_STRING,
                 description='timestamp 형식으로 공지글 생성 시간을 반환합니다.'
+            ),
+            'comment_count': openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description='해당 공지글에 달린 댓글 수입니다.'
             ),
         }
     )

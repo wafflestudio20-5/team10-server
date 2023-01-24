@@ -28,6 +28,7 @@ urlpatterns = [
     # 공지사항 게시판
     path('class/<int:pk>/announcements/', AnnouncementListCreateView.as_view()),
     path('announcement/<int:pk>/', AnnouncementDetailView.as_view()),
+    path('class/<int:pk>/announcements/search/', AnnouncementSearchView.as_view()),
 
     # 질의응답 게시판
     path('class/<int:pk>/questions/', QuestionListCreateView.as_view()),
