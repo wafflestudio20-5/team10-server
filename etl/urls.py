@@ -33,6 +33,7 @@ urlpatterns = [
     # 질의응답 게시판
     path('class/<int:pk>/questions/', QuestionListCreateView.as_view()),
     path('question/<int:pk>/', QuestionDetailView.as_view()),
+    path('class/<int:pk>/questions/search/', QuestionSearchView.as_view()),
 
     # 댓글
     path('post/<int:pk>/comments/', CommentCreateView.as_view()),
