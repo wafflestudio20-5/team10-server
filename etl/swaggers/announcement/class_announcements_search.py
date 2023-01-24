@@ -3,7 +3,7 @@ from drf_yasg.openapi import *
 class_announcements_search_operation_description = "기능\n" \
                                                    "- 특정 수업의 공지사항 검색 기능을 지원합니다.\n" \
                                                    "- URL의 {id}에는 특정 수업의 id가 들어갑니다.\n" \
-                                                   "- 특정 수업의 공지사항 \"이름\"을 검색합니다.\n" \
+                                                   "- 특정 수업의 공지사항 \"제목\"을 검색합니다.\n" \
                                                    "- 페이지네이션이 적용되어, 생성 시간 역순(최근순)으로 공지사항을 " \
                                                    "10개씩 반환합니다.\n" \
                                                    "\npermission\n" \
@@ -16,14 +16,15 @@ class_announcements_search_operation_description = "기능\n" \
                                                    "\nresponses\n" \
                                                    "- 200: 공지사항 검색 성공\n" \
                                                    "\n사용 예시\n" \
-                                                   "- id=1인 수업에서 '성적' 키워드가 들어간 수업을 검색하고 싶을 때, " \
+                                                   "- id=1인 수업에서 '성적' 키워드가 들어간 공지글을 검색하고 싶을 때, " \
                                                    "'baseURL/etl/class/1/announcements/search/?name=성적' 사용\n" \
                                                    "\n비고\n" \
-                                                   "- 현재는 공지사항의 이름만을 검색합니다. " \
+                                                   "- 현재는 공지사항의 제목만을 검색합니다. " \
                                                    "내용 검색도 필요하다면, 말씀 바랍니다."
 
 class_announcements_search_responses = {
     200: Schema(
+        'Announcement Search Result',
         type=TYPE_OBJECT,
         properties={
             'next': Schema(
@@ -97,4 +98,4 @@ class_announcements_search_parameter_name = Parameter(
     type=TYPE_STRING,
 )
 
-class_announcements_search_manual_parameters = [class_announcements_search_parameter_name,]
+class_announcements_search_manual_parameters = [class_announcements_search_parameter_name]

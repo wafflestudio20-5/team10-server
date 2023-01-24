@@ -52,17 +52,6 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
-class ClassDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAdmin | IsCreatorReadOnly]
-    queryset = Class.objects.all()
-
-    @swagger_auto_schema(
-        operation_description=swaggers.class_delete_operation_description,
-    )
-    def delete(self, request, *args, **kwargs):
-        return super().delete(request, *args, **kwargs)
-
-
 class EnrollClassView(generics.CreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (~IsProfessor))]
     serializer_class = EnrollDropSerializer
@@ -135,3 +124,29 @@ class ClassSearchView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+class ClassDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
+    serializer_class = ClassSerializer
+    queryset = Class.objects.all()
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_get_operation_description,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_patch_operation_description,
+        request_body=swaggers.class_patch_request_body,
+        responses=swaggers.class_patch_responses,
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_delete_operation_description,
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)

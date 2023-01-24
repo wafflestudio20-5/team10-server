@@ -64,3 +64,24 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
 
         return super().delete(request, *args, **kwargs)
+
+
+class QuestionSearchView(generics.ListAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    serializer_class = PostSerializer
+    pagination_class = PostListPagination
+
+    # TODO: 현재는 제목 검색만 구현되어 있음.
+    def get_queryset(self):
+        question_name = self.request.GET['name']
+        return Post.objects.filter(is_announcement=False)\
+            .filter(lecture_id=self.kwargs['pk'])\
+            .filter(title__contains=question_name)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_questions_search_operation_description,
+        responses=swaggers.class_questions_search_responses,
+        manual_parameters=swaggers.class_questions_search_manual_parameters,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

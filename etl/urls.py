@@ -7,7 +7,7 @@ urlpatterns = [
     # 수업
     path('classes/', ClassListCreateView.as_view()),
     path('classes/professor/', ProfessorClassListCreateView.as_view()),
-    path('class/<int:pk>/', ClassDeleteView.as_view()),
+    path('class/<int:pk>/', ClassDetailView.as_view()),
     path('class/enroll/', EnrollClassView.as_view()),
     path('class/drop/', DropClassView.as_view()),
     path('class/<int:pk>/user-list/', StudentListView.as_view()),
@@ -33,6 +33,7 @@ urlpatterns = [
     # 질의응답 게시판
     path('class/<int:pk>/questions/', QuestionListCreateView.as_view()),
     path('question/<int:pk>/', QuestionDetailView.as_view()),
+    path('class/<int:pk>/questions/search/', QuestionSearchView.as_view()),
 
     # 댓글
     path('post/<int:pk>/comments/', CommentCreateView.as_view()),
