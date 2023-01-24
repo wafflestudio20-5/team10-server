@@ -63,3 +63,24 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
+class AnnouncementSearchView(generics.ListAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    serializer_class = PostSerializer
+    pagination_class = PostListPagination
+
+    # TODO: 현재는 제목 검색만으로 구현해 놓았는데 내용 검색도 필요한가??
+    def get_queryset(self):
+        announcement_name = self.request.GET['name']
+        return Post.objects.filter(is_announcement=True)\
+            .filter(lecture_id=self.kwargs['pk'])\
+            .filter(title__contains=announcement_name)
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_announcements_search_operation_description,
+        responses=swaggers.class_announcements_search_responses,
+        manual_parameters=swaggers.class_announcements_search_manual_parameters,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
