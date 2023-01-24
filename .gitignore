@@ -5,4 +5,5 @@ authentication/migrations/__pycache__/
 etl/__pycache__/
 etl/migrations/__pycache__/
 team10_server/__pycache__/
+.env
 #.github
