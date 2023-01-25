@@ -11,7 +11,7 @@ import etl.swaggers as swaggers
 class AnnouncementListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
-    serializer_class = PostSerializer
+    serializer_class = AnnouncementSerializer
 
     def get_queryset(self):
         return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True)
@@ -19,7 +19,6 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['lecture_id'] = self.kwargs['pk']
-        context['is_announcement'] = True
         return context
 
     @swagger_auto_schema(
@@ -72,7 +71,7 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class AnnouncementSearchView(generics.ListAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
-    serializer_class = PostSerializer
+    serializer_class = AnnouncementSerializer
     pagination_class = PostListPagination
 
     # TODO: 현재는 제목 검색만으로 구현해 놓았는데 내용 검색도 필요한가??

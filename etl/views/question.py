@@ -11,7 +11,7 @@ import etl.swaggers as swaggers
 class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
-    serializer_class = PostSerializer
+    serializer_class = QuestionSerializer
 
     def get_queryset(self):
         return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
@@ -19,7 +19,6 @@ class QuestionListCreateView(generics.ListCreateAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['lecture_id'] = self.kwargs['pk']
-        context['is_announcement'] = False
         return context
 
     @swagger_auto_schema(
@@ -73,7 +72,7 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class QuestionSearchView(generics.ListAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
-    serializer_class = PostSerializer
+    serializer_class = QuestionSerializer
     pagination_class = PostListPagination
 
     # TODO: 현재는 제목 검색만 구현되어 있음.

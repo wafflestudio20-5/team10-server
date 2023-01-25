@@ -1,6 +1,5 @@
 from drf_yasg import openapi
 
-# TODO: 댓글 수 기능 정상 구현 후 swagger 수정
 class_announcements_get_operation_description = '기능\n' \
                                                '- 특정 수업에 해당하는 모든 공지사항 목록을 가져옵니다.\n' \
                                                 '- {id}에는 class id가 들어갑니다.\n' \
@@ -12,9 +11,6 @@ class_announcements_get_operation_description = '기능\n' \
                                                 '- 아무것도 없습니다.\n' \
                                                 '\nresponses\n' \
                                                 '- 200: {id}에 해당하는 수업의 공지사항 목록 가져오기 성공\n' \
-                                                '\n비고\n' \
-                                                '- 공지사항에 달린 댓글에 갯수를 나타내는 "comment_count"가 response에 ' \
-                                                '추가되었지만, 아직 기능이 미구현되어 항상 0을 반환합니다.'
 
 class_announcements_get_responses = {
     200: openapi.Schema(
@@ -49,7 +45,7 @@ class_announcements_get_responses = {
                         ),
                         'content': openapi.Schema(
                             type=openapi.TYPE_STRING,
-                            description='공지글 내용입니다. 현재는 단순히 리스트를 보는 것이므로, 앞의 10글자만을 반환합니다.',
+                            description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
                         ),
                         'created_by': openapi.Schema(
                             'User',
@@ -136,7 +132,7 @@ class_announcements_post_responses = {
             ),
             'content': openapi.Schema(
                 type=openapi.TYPE_STRING,
-                description='공지글 내용입니다. 앞의 10글자만을 반환합니다.',
+                description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
             ),
             'created_by': openapi.Schema(
                 'User',

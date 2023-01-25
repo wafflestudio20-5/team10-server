@@ -58,7 +58,6 @@ comment_get_responses = {
     )
 }
 
-# TODO: 다음 서버 배포 시 비고 삭제
 comment_patch_operation_description = '기능\n' \
                                       '- 특정 댓글의 내용을 수정합니다.\n' \
                                       '- URL의 {id}는 댓글의 id를 의미합니다.\n' \
@@ -69,8 +68,6 @@ comment_patch_operation_description = '기능\n' \
                                       '- content(선택)\n' \
                                       '\nresponses\n' \
                                       '- 200: 특정 댓글 내용 수정 성공\n' \
-                                      '\n비고\n' \
-                                      '- permission을 잘못 설정했습니다. 현재 배포에서는 교수자가 댓글 내용을 수정할 수 없습니다. 다음 배포 때 고치겠습니다.'
 
 comment_patch_request_body = openapi.Schema(
     'Comment',
@@ -125,7 +122,6 @@ comment_patch_responses = {
     )
 }
 
-# TODO: 다음 서버 배포 시 비고 삭제
 comment_delete_operation_description = '기능\n' \
                                        '- 특정 댓글을 삭제합니다.\n' \
                                        '- URL의 {id}에는 삭제하고자 하는 댓글의 id가 들어갑니다.\n' \
@@ -135,6 +131,4 @@ comment_delete_operation_description = '기능\n' \
                                        '\nrequest body\n' \
                                        '- 아무것도 없습니다.\n' \
                                        '\nresponses\n' \
-                                       '- 204: 특정 댓글 삭제 성공\n' \
-                                       '\n비고\n' \
-                                       '- permission을 잘못 설정했습니다. 현재 배포에서는 교수자가 댓글을 삭제할 수 없습니다. 다음 배포 때 고치겠습니다.'
+                                       '- 204: 특정 댓글 삭제 성공'

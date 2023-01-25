@@ -66,7 +66,6 @@ class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
-    # TODO: 동작 방식을 분석해 swaggers.logout_operation_description, swaggers.logout_responses 수정 필요.
     # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
     @swagger_auto_schema(
         operation_description=swaggers.logout_operation_description,
