@@ -6,3 +6,4 @@ from .module import *
 from .post import *
 from .question import *
 from .user import *
+from .evaluation import *
