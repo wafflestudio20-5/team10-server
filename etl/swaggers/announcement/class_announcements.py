@@ -82,7 +82,11 @@ class_announcements_get_responses = {
                         ),
                     }
                 )
-            )
+            ),
+            'total_announcement_count': openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description='해당 수업에 속하는 공지글들의 갯수입니다.'
+            ),
         }
     )
 }

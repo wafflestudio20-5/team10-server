@@ -84,7 +84,11 @@ class_questions_search_responses = {
                         ),
                     }
                 )
-            )
+            ),
+            'total_question_count': Schema(
+                type=TYPE_STRING,
+                description='검색 조건을 만족하는 질문글의 갯수입니다.',
+            ),
         }
     ),
 }

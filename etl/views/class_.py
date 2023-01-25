@@ -9,14 +9,15 @@ from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
 
 
-# TODO: 페이지네이션 추가해야 함
 class ClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+    pagination_class = ClassListPagination
 
     @swagger_auto_schema(
-        operation_description=swaggers.classes_get_operation_description
+        operation_description=swaggers.classes_get_operation_description,
+        responses=swaggers.classes_get_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -33,20 +34,22 @@ class ClassListCreateView(generics.ListCreateAPIView):
 class ProfessorClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessor)]
     serializer_class = ClassSerializer
+    pagination_class = ClassListPagination
 
     def get_queryset(self):
         return Class.objects.filter(created_by=self.request.user)
 
     @swagger_auto_schema(
-        operation_description=swaggers.class_professor_get_operation_description,
+        operation_description=swaggers.classes_professor_get_operation_description,
+        responses=swaggers.classes_professor_get_responses,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description=swaggers.class_professor_post_operation_description,
+        operation_description=swaggers.classes_professor_post_operation_description,
         request_body=swaggers.classes_post_request_body,
-        responses=swaggers.class_professor_post_responses,
+        responses=swaggers.classes_professor_post_responses,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)

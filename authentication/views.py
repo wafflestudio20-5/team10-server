@@ -212,8 +212,6 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    # TODO: student_id의 경우 회원가입 시 엄격하게 테스트하지만, 아직 PATCH 요청 시 동일한 테스트를 수행하는 것이 존재하지 않음. validate 추가 필요.
-    # TODO: student_id validate 추가 시 swagger.user_patch_operation_description 수정 필요
     @swagger_auto_schema(
         operation_description=swaggers.user_patch_operation_description,
         request_body=swaggers.user_patch_request_body,

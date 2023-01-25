@@ -78,7 +78,11 @@ class_questions_get_responses = {
                         ),
                     }
                 )
-            )
+            ),
+            'total_question_count': openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description='해당 수업에 속하는 질문글들의 갯수입니다.'
+            ),
         }
     )
 }

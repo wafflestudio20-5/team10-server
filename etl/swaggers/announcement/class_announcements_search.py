@@ -90,6 +90,10 @@ class_announcements_search_responses = {
                         ),
                     }
                 )
+            ),
+            'total_announcemnt_count': Schema(
+                type=TYPE_INTEGER,
+                description='검색 조건을 만족하는 공지글의 갯수입니다.'
             )
         }
     ),
