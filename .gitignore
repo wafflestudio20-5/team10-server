@@ -3,6 +3,14 @@ venv/
 authentication/__pycache__/
 authentication/migrations/__pycache__/
 etl/__pycache__/
+etl/serializers/__pycache__/
+etl/swaggers/announcement/__pycache__/
+etl/swaggers/class_/__pycache__/
+etl/swaggers/comment/__pycache__/
+etl/swaggers/assignment/__pycache__/
+etl/swaggers/module/__pycache__/
+etl/swaggers/question/__pycache__/
+etl/views/__pycache__/
 etl/migrations/__pycache__/
 team10_server/__pycache__/
 .env
