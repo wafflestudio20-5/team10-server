@@ -134,7 +134,7 @@ class KakaoCallBackView(APIView):
             user = User.objects.create_user(email=email)
             user.is_social_login = True
             user.save()
-            SocialAccount.objects.create(user=user)
+            # SocialAccount.objects.create(user=user)
 
             update_last_login(None, user)
             token = RefreshToken.for_user(user=user)
