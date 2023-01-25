@@ -11,15 +11,20 @@ import etl.swaggers as swaggers
 class AnnouncementListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
-    serializer_class = PostSerializer
+    serializer_class = AnnouncementSerializer
+
+    def __init__(self):
+        super().__init__()
+        self.total_count = 0
 
     def get_queryset(self):
-        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True)
+        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True)
+        self.total_count = queryset.count()
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['lecture_id'] = self.kwargs['pk']
-        context['is_announcement'] = True
         return context
 
     @swagger_auto_schema(
@@ -27,7 +32,10 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
         responses=swaggers.class_announcements_get_responses,
     )
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        get_data = super().get(request, *args, **kwargs)
+        # OrderedDict 타입인 .data에 접근하여 response를 조작할 수 있음.
+        get_data.data['total_announcement_count'] = self.total_count
+        return get_data
 
     @swagger_auto_schema(
         operation_description=swaggers.class_announcements_post_operation_description,
@@ -40,14 +48,19 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
 
 class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
-    queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
+
+    def get_queryset(self):
+        return Post.objects.filter(is_announcement=True)
 
     @swagger_auto_schema(
         operation_description=swaggers.announcement_get_operation_description,
         responses=swaggers.announcement_get_responses,
     )
     def get(self, request, *args, **kwargs):
+        announ = Post.objects.get(id=self.kwargs['pk'])
+        announ.hits += 1
+        announ.save()
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
@@ -63,3 +76,32 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
+class AnnouncementSearchView(generics.ListAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    serializer_class = AnnouncementSerializer
+    pagination_class = PostListPagination
+
+    def __init__(self):
+        super().__init__()
+        self.total_count = 0
+
+    # TODO: 현재는 제목 검색만으로 구현해 놓았는데 내용 검색도 필요한가??
+    def get_queryset(self):
+        announcement_name = self.request.GET['name']
+        queryset = Post.objects.filter(is_announcement=True)\
+            .filter(lecture_id=self.kwargs['pk'])\
+            .filter(title__contains=announcement_name)
+        self.total_count = queryset.count()
+        return queryset
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_announcements_search_operation_description,
+        responses=swaggers.class_announcements_search_responses,
+        manual_parameters=swaggers.class_announcements_search_manual_parameters,
+    )
+    def get(self, request, *args, **kwargs):
+        get_data = super().get(request, *args, **kwargs)
+        get_data.data['total_announcement_count'] = self.total_count
+        return get_data

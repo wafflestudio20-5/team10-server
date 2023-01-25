@@ -51,7 +51,20 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
-    classes = ClassSerializer(many=True)
+    classes = ClassSerializer(many=True, read_only=True)
+
+    def validate_student_id(self, value: str):
+        if len(value) != 10:
+            raise serializers.ValidationError('student_id should be 10 length')
+        if value[4] != '-':
+            raise serializers.ValidationError('student_id form should be XXXX-XXXXX')
+        try:
+            user = User.objects.get(student_id=value)
+            if user != self.context['request'].user:
+                raise serializers.ValidationError('already existing student_id')
+        except User.DoesNotExist:
+            pass
+        return value
 
     class Meta:
         model = User

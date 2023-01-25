@@ -8,18 +8,24 @@ from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
 
 
+# TODO: 총 질문글 수 표시 필요
 class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
-    serializer_class = PostSerializer
+    serializer_class = QuestionSerializer
+
+    def __init__(self):
+        super().__init__()
+        self.total_count = 0
 
     def get_queryset(self):
-        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
+        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
+        self.total_count = queryset.count()
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['lecture_id'] = self.kwargs['pk']
-        context['is_announcement'] = False
         return context
 
     @swagger_auto_schema(
@@ -27,7 +33,9 @@ class QuestionListCreateView(generics.ListCreateAPIView):
         responses=swaggers.class_questions_get_responses,
     )
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        get_data = super().get(request, *args, **kwargs)
+        get_data.data['total_question_count'] = self.total_count
+        return get_data
 
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_post_operation_description,
@@ -40,14 +48,19 @@ class QuestionListCreateView(generics.ListCreateAPIView):
 
 class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessor | IsCreatorReadOnly))]
-    queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
+
+    def get_queryset(self):
+        return Post.objects.filter(is_announcement=False)
 
     @swagger_auto_schema(
         operation_description=swaggers.question_get_operation_description,
         responses=swaggers.question_get_responses,
     )
     def get(self, request, *args, **kwargs):
+        ques = Post.objects.get(id=self.kwargs['pk'])
+        ques.hits += 1
+        ques.save()
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
@@ -64,3 +77,33 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
 
         return super().delete(request, *args, **kwargs)
+
+
+# TODO: 검색된 총 질문글 수 표시 필요
+class QuestionSearchView(generics.ListAPIView):
+    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    serializer_class = QuestionSerializer
+    pagination_class = PostListPagination
+
+    def __init__(self):
+        super().__init__()
+        self.total_count = 0
+
+    # TODO: 현재는 제목 검색만 구현되어 있음.
+    def get_queryset(self):
+        question_name = self.request.GET['name']
+        queryset = Post.objects.filter(is_announcement=False)\
+            .filter(lecture_id=self.kwargs['pk'])\
+            .filter(title__contains=question_name)
+        self.total_count = queryset.count()
+        return queryset
+
+    @swagger_auto_schema(
+        operation_description=swaggers.class_questions_search_operation_description,
+        responses=swaggers.class_questions_search_responses,
+        manual_parameters=swaggers.class_questions_search_manual_parameters,
+    )
+    def get(self, request, *args, **kwargs):
+        get_data = super().get(request, *args, **kwargs)
+        get_data.data['total_question_count'] = self.total_count
+        return get_data

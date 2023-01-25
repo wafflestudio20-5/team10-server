@@ -81,7 +81,6 @@ user_patch_operation_description = '기능\n' \
                                    '\nresponses\n' \
                                    '- 200: 유저 정보 수정 성공 후, 수정이 반영된 유저 정보 반환.\n' \
                                    '\n비고\n' \
-                                   '- 회원가입 시 존재하는 student_id validate 기능이 아직 구현되지 않았습니다.\n' \
                                    '- student_id 조건 3개: 10글자, student_id[4]==\'-\', unique'
 
 user_patch_request_body = openapi.Schema(
@@ -97,7 +96,75 @@ user_patch_request_body = openapi.Schema(
     }
 )
 
-user_patch_responses = user_get_responses
+user_patch_responses = {
+    200: openapi.Schema(
+        'User',
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'id': openapi.Schema(
+                read_only=True,
+                type=openapi.TYPE_INTEGER
+            ),
+            'email': openapi.Schema(
+                type=openapi.TYPE_STRING
+            ),
+            'username': openapi.Schema(
+                type=openapi.TYPE_STRING
+            ),
+            'student_id': openapi.Schema(
+                type=openapi.TYPE_STRING
+            ),
+            'profile': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description='유저의 사진이 담긴 url을 가져오는 것 같은데, 해당 기능을 담당하지 않아 확인이 필요합니다.'
+            ),
+            'is_professor': openapi.Schema(
+                type=openapi.TYPE_BOOLEAN,
+                description='사용자가 교수인지 정보를 반환합니다.'
+            ),
+            'is_superuser': openapi.Schema(
+                type=openapi.TYPE_BOOLEAN,
+                description='사용자가 admin인지 정보를 반환합니다.'
+            ),
+            'classes': openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                description='유저가 듣는 수업 목록을 리스트로 반환합니다.',
+                items=openapi.Schema(
+                    'Class',
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'id': openapi.Schema(
+                            read_only=True,
+                            type=openapi.TYPE_INTEGER
+                        ),
+                        'name': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description='수업 이름입니다.'
+                        ),
+                    }
+                )
+            ),
+        },
+        description='특정 유저의 정보를 반환합니다.'
+    ),
+    400: openapi.Schema(
+        'Fail',
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'student_id': openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='1. 학번의 길이가 10글자가 아닐 때, "student_id should be 10 length" 메시지 반환\n'
+                                '2. 5번째 글자가 "-"가 아닐 때, "student_id form should be XXXX-XXXXX" 메시지 반환\n'
+                                '3. 이미 존재하는 학번일 때, "already existing student_id" 메시지 반환.\n'
+                                '다만 수정 전 자신의 학번과 동일하게 PATCH 요청을 넣었을 때는, 오류를 반환하지 않습니다.\n'
+                                '\n정규표현식으로 숫자 형식만이 입력되게는 제한을 걸어두지 않았습니다.'
+                )
+            )
+        }
+    )
+}
 
 user_delete_operation_description = '기능\n' \
                                        '- 특정 유저 삭제\n' \

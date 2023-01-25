@@ -66,7 +66,6 @@ class LogoutAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
-    # TODO: 동작 방식을 분석해 swaggers.logout_operation_description, swaggers.logout_responses 수정 필요.
     # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
     @swagger_auto_schema(
         operation_description=swaggers.logout_operation_description,
@@ -80,12 +79,11 @@ class LogoutAPI(generics.RetrieveAPIView):
         return response
 
 
-local = True
-if local:
-    BASE_URL = 'http://localhost:8000/'
-else:
-    BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
 
+
+
+BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+# BASE_URL = 'http://localhost:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 
@@ -147,7 +145,8 @@ class KakaoCallBackView(APIView):
                 'access_token': str(token.access_token)
             }
 
-            return redirect(f"{BASE_URL}authentication/user/{user.id}/")
+            # return redirect(f"{BASE_URL}authentication/set/{user.id}/")
+            return JsonResponse(data)
 
 
 class ProfileUploadView(views.APIView):
@@ -213,8 +212,6 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    # TODO: student_id의 경우 회원가입 시 엄격하게 테스트하지만, 아직 PATCH 요청 시 동일한 테스트를 수행하는 것이 존재하지 않음. validate 추가 필요.
-    # TODO: student_id validate 추가 시 swagger.user_patch_operation_description 수정 필요
     @swagger_auto_schema(
         operation_description=swaggers.user_patch_operation_description,
         request_body=swaggers.user_patch_request_body,

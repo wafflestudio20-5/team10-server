@@ -57,7 +57,7 @@ announcement_get_responses = {
                 type=openapi.TYPE_STRING,
                 description='timestamp 형식으로 공지글 생성 시간을 반환합니다.'
             ),
-            'comments': openapi.Schema(
+            'comment': openapi.Schema(
                 type=openapi.TYPE_ARRAY,
                 description='해당 공지글에 달린 댓글 리스트입니다.',
                 items=openapi.Schema(
@@ -98,7 +98,12 @@ announcement_get_responses = {
                         ),
                     }
                 )
-            )
+            ),
+            'hits': openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description='해당 공지글의 조회수입니다.\n"baseURL/etl/announcement/{id}/"에 GET 요청을 '
+                            '넣을 때마다, 조회수는 1씩 증가합니다.'
+            ),
         }
     )
 }

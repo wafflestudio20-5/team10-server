@@ -1,6 +1,5 @@
 from drf_yasg import openapi
 
-# TODO: 댓글 갯수 기능 추가 후 비고 삭제
 class_announcements_get_operation_description = '기능\n' \
                                                '- 특정 수업에 해당하는 모든 공지사항 목록을 가져옵니다.\n' \
                                                 '- {id}에는 class id가 들어갑니다.\n' \
@@ -12,8 +11,6 @@ class_announcements_get_operation_description = '기능\n' \
                                                 '- 아무것도 없습니다.\n' \
                                                 '\nresponses\n' \
                                                 '- 200: {id}에 해당하는 수업의 공지사항 목록 가져오기 성공\n' \
-                                                '\n비고\n' \
-                                                '- 해당 공지사항에 달린 댓굴의 갯수를 가져올 수 있도록 기능을 추가할 예정입니다.'
 
 class_announcements_get_responses = {
     200: openapi.Schema(
@@ -48,7 +45,7 @@ class_announcements_get_responses = {
                         ),
                         'content': openapi.Schema(
                             type=openapi.TYPE_STRING,
-                            description='공지글 내용입니다. 현재는 단순히 리스트를 보는 것이므로, 앞의 10글자만을 반환합니다.',
+                            description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
                         ),
                         'created_by': openapi.Schema(
                             'User',
@@ -74,9 +71,22 @@ class_announcements_get_responses = {
                             type=openapi.TYPE_STRING,
                             description='timestamp 형식으로 공지글 생성 시간을 반환합니다.'
                         ),
+                        'comment_count': openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description='해당 공지글에 달린 댓글 수입니다.'
+                        ),
+                        'hits': openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description='해당 공지글의 조회수입니다.\n"baseURL/etl/announcement/{id}/"에 GET 요청을 '
+                                        '넣을 때마다, 조회수는 1씩 증가합니다.'
+                        ),
                     }
                 )
-            )
+            ),
+            'total_announcement_count': openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description='해당 수업에 속하는 공지글들의 갯수입니다.'
+            ),
         }
     )
 }
@@ -126,7 +136,7 @@ class_announcements_post_responses = {
             ),
             'content': openapi.Schema(
                 type=openapi.TYPE_STRING,
-                description='공지글 내용입니다. 앞의 10글자만을 반환합니다.',
+                description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
             ),
             'created_by': openapi.Schema(
                 'User',
@@ -151,6 +161,15 @@ class_announcements_post_responses = {
             'created_at': openapi.Schema(
                 type=openapi.TYPE_STRING,
                 description='timestamp 형식으로 공지글 생성 시간을 반환합니다.'
+            ),
+            'comment_count': openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description='해당 공지글에 달린 댓글 수입니다.'
+            ),
+            'hits': openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description='해당 공지글의 조회수입니다.\n"baseURL/etl/announcement/{id}/"에 GET 요청을 '
+                            '넣을 때마다, 조회수는 1씩 증가합니다.'
             ),
         }
     )
