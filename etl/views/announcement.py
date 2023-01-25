@@ -40,8 +40,10 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
 
 class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
-    queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
+
+    def get_queryset(self):
+        return Post.objects.filter(is_announcement=True)
 
     @swagger_auto_schema(
         operation_description=swaggers.announcement_get_operation_description,

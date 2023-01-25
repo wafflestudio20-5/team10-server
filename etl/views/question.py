@@ -40,8 +40,10 @@ class QuestionListCreateView(generics.ListCreateAPIView):
 
 class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessor | IsCreatorReadOnly))]
-    queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
+
+    def get_queryset(self):
+        return Post.objects.filter(is_announcement=False)
 
     @swagger_auto_schema(
         operation_description=swaggers.question_get_operation_description,
