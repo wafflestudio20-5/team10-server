@@ -14,8 +14,14 @@ class QuestionListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
     serializer_class = QuestionSerializer
 
+    def __init__(self):
+        super().__init__()
+        self.total_count = 0
+
     def get_queryset(self):
-        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
+        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
+        self.total_count = queryset.count()
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -27,7 +33,9 @@ class QuestionListCreateView(generics.ListCreateAPIView):
         responses=swaggers.class_questions_get_responses,
     )
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        get_data = super().get(request, *args, **kwargs)
+        get_data.data['total_question_count'] = self.total_count
+        return get_data
 
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_post_operation_description,
@@ -77,12 +85,18 @@ class QuestionSearchView(generics.ListAPIView):
     serializer_class = QuestionSerializer
     pagination_class = PostListPagination
 
+    def __init__(self):
+        super().__init__()
+        self.total_count = 0
+
     # TODO: 현재는 제목 검색만 구현되어 있음.
     def get_queryset(self):
         question_name = self.request.GET['name']
-        return Post.objects.filter(is_announcement=False)\
+        queryset = Post.objects.filter(is_announcement=False)\
             .filter(lecture_id=self.kwargs['pk'])\
             .filter(title__contains=question_name)
+        self.total_count = queryset.count()
+        return queryset
 
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_search_operation_description,
@@ -90,4 +104,6 @@ class QuestionSearchView(generics.ListAPIView):
         manual_parameters=swaggers.class_questions_search_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        get_data = super().get(request, *args, **kwargs)
+        get_data.data['total_question_count'] = self.total_count
+        return get_data
