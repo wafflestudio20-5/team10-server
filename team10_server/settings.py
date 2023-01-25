@@ -27,11 +27,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST'), '127.0.0.1']
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST'), '127.0.0.1', 'localhost']
 
 # Application definition
-
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,18 +52,19 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.kakao',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DATETIME_FORMAT': '%s000',
 }
 
 REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'jwt_token'  # 만료 시간 짧은 토큰
+JWT_AUTH_REFRESH_COOKIE = 'jwt_refresh_token'  # 만료된 토큰을 갱신하기 위한 토큰
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -73,7 +72,7 @@ SIMPLE_JWT = {
 
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
+    'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
@@ -152,7 +151,6 @@ DATABASES = {
         }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
