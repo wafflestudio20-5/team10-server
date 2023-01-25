@@ -50,10 +50,6 @@ class_questions_search_responses = {
                             type=TYPE_STRING,
                             description='질문글 제목입니다.',
                         ),
-                        'content': Schema(
-                            type=TYPE_STRING,
-                            description='질문글 내용입니다. 리스트 조회에서는 최대 10글자까지 확인할 수 있습니다.',
-                        ),
                         'created_by': Schema(
                             type=TYPE_OBJECT,
                             description='질문글 작성자 정보입니다.\n',

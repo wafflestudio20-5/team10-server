@@ -54,7 +54,7 @@ class_announcements_search_responses = {
                         ),
                         'content': Schema(
                             type=TYPE_STRING,
-                            description='공지사항 내용입니다. 리스트 조회에서는 최대 10글자까지 확인할 수 있습니다.',
+                            description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
                         ),
                         'created_by': Schema(
                             type=TYPE_OBJECT,

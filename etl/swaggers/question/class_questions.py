@@ -47,10 +47,6 @@ class_questions_get_responses = {
                             type=openapi.TYPE_STRING,
                             description='질문글 제목입니다.',
                         ),
-                        'content': openapi.Schema(
-                            type=openapi.TYPE_STRING,
-                            description='질문글 내용입니다. 현재는 단순히 리스트를 보는 것이므로, 앞의 10글자만을 반환합니다.',
-                        ),
                         'created_by': openapi.Schema(
                             'User',
                             type=openapi.TYPE_OBJECT,
@@ -133,10 +129,6 @@ class_questions_post_responses = {
             'title': openapi.Schema(
                 type=openapi.TYPE_STRING,
                 description='질문글 제목입니다.',
-            ),
-            'content': openapi.Schema(
-                type=openapi.TYPE_STRING,
-                description='질문글 내용입니다. 앞의 10글자만을 반환합니다.',
             ),
             'created_by': openapi.Schema(
                 'User',

@@ -49,7 +49,7 @@ class_announcements_get_responses = {
                         ),
                         'content': openapi.Schema(
                             type=openapi.TYPE_STRING,
-                            description='공지글 내용입니다. 현재는 단순히 리스트를 보는 것이므로, 앞의 10글자만을 반환합니다.',
+                            description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
                         ),
                         'created_by': openapi.Schema(
                             'User',
@@ -136,7 +136,7 @@ class_announcements_post_responses = {
             ),
             'content': openapi.Schema(
                 type=openapi.TYPE_STRING,
-                description='공지글 내용입니다. 앞의 10글자만을 반환합니다.',
+                description='공지글 내용입니다. 내용이 10글자를 넘어간다면, 10글자까지 자르고 뒤에 "..."을 붙여 반환합니다.',
             ),
             'created_by': openapi.Schema(
                 'User',
