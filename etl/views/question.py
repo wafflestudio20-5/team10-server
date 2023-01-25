@@ -19,7 +19,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
         self.total_count = 0
 
     def get_queryset(self):
-        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)
+        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False).order_by('-created_at')
         self.total_count = queryset.count()
         return queryset
 
@@ -94,7 +94,8 @@ class QuestionSearchView(generics.ListAPIView):
         question_name = self.request.GET['name']
         queryset = Post.objects.filter(is_announcement=False)\
             .filter(lecture_id=self.kwargs['pk'])\
-            .filter(title__contains=question_name)
+            .filter(title__contains=question_name)\
+            .order_by('-created_at')
         self.total_count = queryset.count()
         return queryset
 
