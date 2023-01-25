@@ -15,6 +15,7 @@ class Assignment(models.Model):
     lecture = models.ForeignKey(Class, on_delete=models.CASCADE, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=50)
+    category = models.CharField(max_length=50, null=True, blank=True)
     due_date = models.DateTimeField()
     max_grade = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],)
@@ -59,3 +60,16 @@ class Weekly(models.Model):
 class ModuleContent(models.Model):
     weekly = models.ForeignKey(Weekly, on_delete=models.CASCADE, related_name='module_content')
     file = models.FileField(null=True, upload_to="modules/", blank=True)
+
+class ClassEvaluation(models.Model):
+    lecture = models.ForeignKey(Class, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    choice_1 = models.IntegerField(null=True, blank=True)
+    choice_2 = models.IntegerField(null=True, blank=True)
+    choice_3 = models.IntegerField(null=True, blank=True)
+    choice_4 = models.IntegerField(null=True, blank=True)
+    choice_5 = models.IntegerField(null=True, blank=True)
+    choice_6 = models.IntegerField(null=True, blank=True)
+    choice_7 = models.IntegerField(null=True, blank=True)
+    descriptive_1 = models.TextField(null=True, blank=True)
+    descriptive_2 = models.TextField(null=True, blank=True)

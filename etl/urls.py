@@ -45,6 +45,10 @@ urlpatterns = [
     path('module/content/', ModuleContentCreateView.as_view()),
     path('module/content/<int:pk>/', ModuleContentDetailView.as_view()),
     path('module/class/<int:pk>/', WeeklyModuleByClassView.as_view()),
+
+    # 강의평가
+    path('evaluation/check/class/<int:pk>/', IsEvaluatedCheckView.as_view()),
+    path('evaluation/class/<int:pk>/', EvaluationView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
