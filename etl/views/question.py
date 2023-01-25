@@ -50,6 +50,9 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         responses=swaggers.question_get_responses,
     )
     def get(self, request, *args, **kwargs):
+        ques = Post.objects.get(id=self.kwargs['pk'])
+        ques.hits += 1
+        ques.save()
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(

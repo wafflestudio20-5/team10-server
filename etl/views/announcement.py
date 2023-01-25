@@ -50,6 +50,9 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
         responses=swaggers.announcement_get_responses,
     )
     def get(self, request, *args, **kwargs):
+        announ = Post.objects.get(id=self.kwargs['pk'])
+        announ.hits += 1
+        announ.save()
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
