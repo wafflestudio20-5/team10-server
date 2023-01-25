@@ -3,7 +3,6 @@ from etl.models import *
 from .user import UserSimpleSerializer
 
 
-# TODO: comment_count 구현
 class QuestionSerializer(serializers.ModelSerializer):
     content = serializers.CharField(write_only=True)
     created_by = UserSimpleSerializer(read_only=True)
