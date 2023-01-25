@@ -12,6 +12,7 @@ class PostSerializer(serializers.ModelSerializer):
         source='comment.count',
         read_only=True,
     )
+    hits = serializers.IntegerField(read_only=True)
 
     def to_internal_value(self, data):
         internal_value = super().to_internal_value(data)
@@ -29,13 +30,14 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment_count']
+        fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment_count', 'hits']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
     created_by = UserSimpleSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
+    hits = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment']
+        fields = ['id', 'title', 'content', 'created_by', 'created_at', 'comment', 'hits']

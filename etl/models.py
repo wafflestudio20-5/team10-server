@@ -30,6 +30,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True, blank=True)
     is_announcement = models.BooleanField(default=False)
+    hits = models.IntegerField(default=0)
 
 
 class Comment(models.Model):

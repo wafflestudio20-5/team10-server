@@ -98,7 +98,12 @@ question_get_responses = {
                         ),
                     }
                 )
-            )
+            ),
+            'hits': openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description='해당 질문글의 조회수입니다.\n"baseURL/etl/question/{id}/"에 GET 요청을 '
+                            '넣을 때마다, 조회수는 1씩 증가합니다.'
+            ),
         }
     )
 }
