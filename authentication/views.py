@@ -80,8 +80,12 @@ class LogoutAPI(generics.RetrieveAPIView):
         return response
 
 
-BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
-# BASE_URL = 'http://localhost:8000/'
+local = True
+if local:
+    BASE_URL = 'http://localhost:8000/'
+else:
+    BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 
 
@@ -117,7 +121,7 @@ class KakaoCallBackView(APIView):
 
         try:
             user = User.objects.get(email=email)
-            # update_last_login(None, user)
+            update_last_login(None, user)
             token = RefreshToken.for_user(user=user)
 
             data = {
@@ -134,7 +138,7 @@ class KakaoCallBackView(APIView):
             user.save()
             SocialAccount.objects.create(user=user)
 
-            # update_last_login(None, user)
+            update_last_login(None, user)
             token = RefreshToken.for_user(user=user)
 
             data = {
@@ -143,8 +147,7 @@ class KakaoCallBackView(APIView):
                 'access_token': str(token.access_token)
             }
 
-            # return redirect(f"{BASE_URL}authentication/set/{user.id}/")
-            return JsonResponse(data)
+            return redirect(f"{BASE_URL}authentication/user/{user.id}/")
 
 
 class ProfileUploadView(views.APIView):
