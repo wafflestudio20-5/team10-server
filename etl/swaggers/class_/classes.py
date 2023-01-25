@@ -1,8 +1,8 @@
 from drf_yasg import openapi
 
-# TODO: 페이지네이션 적용 후 비고 삭제
 classes_get_operation_description = '기능\n' \
                                   '- 모든 존재하는 수업 목록을 불러옵니다.\n' \
+                                  '- 페이지네이션이 적용되어, 이름 사전 순으로 수업을 10개씩 반환힙니다.\n' \
                                   '\n권한\n' \
                                   '- admin 계정\n' \
                                   '- 로그인한 사용자\n' \
@@ -10,8 +10,50 @@ classes_get_operation_description = '기능\n' \
                                   '- 아무것도 없습니다.\n' \
                                   '\nresponses\n' \
                                   '- 200: 모든 수업 목록 받아오기 성공\n' \
-                                  '\n비고\n' \
-                                  '- 아직 pagination을 적용하지 않았습니다.'
+
+classes_get_responses = {
+    200: openapi.Schema(
+        'Class List',
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'next': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description='다음 10개의 수업을 불러올 api 주소를 담고 있습니다.\n'
+                            '만약 현재 불러온 수업들이 마지막이라면, null 값을 갖습니다.',
+            ),
+            'previous': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description='이전 10개의 수업을 불러올 api 주소를 담고 있습니다.\n'
+                            '처음 수업을 불러왔을 때는, 이전 10개의 수업이 없으므로 null 값을 갖습니다.',
+            ),
+            'results': openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Schema(
+                    'Class',
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'id': openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            read_only=True,
+                        ),
+                        'name': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description='수업 이름입니다',
+                        ),
+                        'created_by': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                'username': openapi.Schema(
+                                    type=openapi.TYPE_STRING,
+                                )
+                            }
+                        )
+                    }
+                )
+            ),
+        }
+    ),
+}
 
 classes_post_operation_description = '기능\n' \
                                    '- 수업 하나를 생성합니다.\n' \
@@ -21,7 +63,7 @@ classes_post_operation_description = '기능\n' \
                                    '\nrequest body\n' \
                                    '- 수업 이름(필수)\n' \
                                    '\nresponses\n' \
-                                   '- 201: 수업 하나 생성 성공'
+                                   '- 201: 수업 하나 생성 성공, 생성한 수업 정보 반환.'
 
 classes_post_request_body = openapi.Schema(
     'Class',

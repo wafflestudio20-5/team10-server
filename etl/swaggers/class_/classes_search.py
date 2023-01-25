@@ -55,7 +55,7 @@ classes_search_responses = {
                         )
                     }
                 )
-            )
+            ),
         }
     )
 }

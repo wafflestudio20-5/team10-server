@@ -8,6 +8,7 @@ from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
 
 
+# TODO: 총 공지글 수 표시 필요
 class AnnouncementListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
@@ -69,6 +70,7 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
+# TODO: 검색된 총 공지글 수 표시 필요
 class AnnouncementSearchView(generics.ListAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
     serializer_class = AnnouncementSerializer
