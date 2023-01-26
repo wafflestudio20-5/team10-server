@@ -8,7 +8,6 @@ from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
 
 
-# TODO: 총 질문글 수 표시 필요
 class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
@@ -31,6 +30,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_get_operation_description,
         responses=swaggers.class_questions_get_responses,
+        manual_parameters=swaggers.class_questions_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         get_data = super().get(request, *args, **kwargs)
@@ -79,7 +79,6 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
-# TODO: 검색된 총 질문글 수 표시 필요
 class QuestionSearchView(generics.ListAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
     serializer_class = QuestionSerializer

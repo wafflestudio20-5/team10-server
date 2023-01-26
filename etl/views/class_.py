@@ -18,6 +18,7 @@ class ClassListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.classes_get_operation_description,
         responses=swaggers.classes_get_responses,
+        manual_parameters=swaggers.classes_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -42,6 +43,7 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.classes_professor_get_operation_description,
         responses=swaggers.classes_professor_get_responses,
+        manual_parameters=swaggers.classes_professor_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -106,6 +108,7 @@ class StudentListView(generics.ListAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.class_user_list_operation_description,
         responses=swaggers.class_user_list_responses,
+        manual_parameters=swaggers.class_user_list_manual_paramters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)

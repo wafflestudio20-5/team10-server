@@ -30,6 +30,7 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.class_announcements_get_operation_description,
         responses=swaggers.class_announcements_get_responses,
+        manual_parameters=swaggers.class_announcements_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         get_data = super().get(request, *args, **kwargs)
