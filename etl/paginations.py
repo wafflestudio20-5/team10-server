@@ -1,16 +1,14 @@
-from rest_framework.pagination import CursorPagination
+from rest_framework.pagination import CursorPagination, PageNumberPagination
 
 
-class StudentListPagination(CursorPagination):
-    ordering = 'username'
-    page_size = 2
-
-
-class PostListPagination(CursorPagination):
-    ordering = '-created_at'
+class StudentListPagination(PageNumberPagination):
     page_size = 10
 
 
-class ClassListPagination(CursorPagination):
-    ordering = 'name'
+class PostListPagination(PageNumberPagination):
     page_size = 10
+
+
+class ClassListPagination(PageNumberPagination):
+    page_size = 10
+

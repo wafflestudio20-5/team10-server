@@ -10,12 +10,19 @@ classes_get_operation_description = '기능\n' \
                                   '- 아무것도 없습니다.\n' \
                                   '\nresponses\n' \
                                   '- 200: 모든 수업 목록 받아오기 성공\n' \
+                                  '\n사용 예시\n' \
+                                  '- 세 번쩨 페이지에 해당하는 수업 목록을 불러오고 싶다면, "baseURL/etl/classes/?page=3"를 ' \
+                                    '통해 가져올 수 있습니다.'
 
 classes_get_responses = {
     200: openapi.Schema(
         'Class List',
         type=openapi.TYPE_OBJECT,
         properties={
+            'count': openapi.Schema(
+              type=openapi.TYPE_INTEGER,
+              description='수업의 총 갯수를 반환합니다.'
+            ),
             'next': openapi.Schema(
                 type=openapi.TYPE_STRING,
                 description='다음 10개의 수업을 불러올 api 주소를 담고 있습니다.\n'
@@ -54,6 +61,16 @@ classes_get_responses = {
         }
     ),
 }
+
+classes_get_parameter_page = openapi.Parameter(
+    'page',
+    openapi.IN_QUERY,
+    description='페이지네이션으로 해당하는 페이지를 반환합니다.',
+    required=True,
+    type=openapi.TYPE_INTEGER,
+)
+
+classes_get_manual_parameters = [classes_get_parameter_page]
 
 classes_post_operation_description = '기능\n' \
                                    '- 수업 하나를 생성합니다.\n' \

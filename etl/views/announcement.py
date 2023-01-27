@@ -18,7 +18,7 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
         self.total_count = 0
 
     def get_queryset(self):
-        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True)
+        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True).order_by('-created_at')
         self.total_count = queryset.count()
         return queryset
 
@@ -30,6 +30,7 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.class_announcements_get_operation_description,
         responses=swaggers.class_announcements_get_responses,
+        manual_parameters=swaggers.class_announcements_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         get_data = super().get(request, *args, **kwargs)
@@ -92,7 +93,8 @@ class AnnouncementSearchView(generics.ListAPIView):
         announcement_name = self.request.GET['name']
         queryset = Post.objects.filter(is_announcement=True)\
             .filter(lecture_id=self.kwargs['pk'])\
-            .filter(title__contains=announcement_name)
+            .filter(title__contains=announcement_name)\
+            .order_by('-created_at')
         self.total_count = queryset.count()
         return queryset
 

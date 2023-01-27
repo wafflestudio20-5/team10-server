@@ -11,13 +11,14 @@ import etl.swaggers as swaggers
 
 class ClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
-    queryset = Class.objects.all()
+    queryset = Class.objects.all().order_by('name')
     serializer_class = ClassSerializer
     pagination_class = ClassListPagination
 
     @swagger_auto_schema(
         operation_description=swaggers.classes_get_operation_description,
         responses=swaggers.classes_get_responses,
+        manual_parameters=swaggers.classes_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -42,6 +43,7 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description=swaggers.classes_professor_get_operation_description,
         responses=swaggers.classes_professor_get_responses,
+        manual_parameters=swaggers.classes_professor_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -101,11 +103,12 @@ class StudentListView(generics.ListAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     def get_queryset(self):
-        return User.objects.filter(classes=self.kwargs['pk'])
+        return User.objects.filter(classes=self.kwargs['pk']).order_by('student_id')
 
     @swagger_auto_schema(
         operation_description=swaggers.class_user_list_operation_description,
         responses=swaggers.class_user_list_responses,
+        manual_parameters=swaggers.class_user_list_manual_paramters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)

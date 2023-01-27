@@ -16,11 +16,8 @@ class_announcements_search_operation_description = "기능\n" \
                                                    "\nresponses\n" \
                                                    "- 200: 공지사항 검색 성공\n" \
                                                    "\n사용 예시\n" \
-                                                   "- id=1인 수업에서 '성적' 키워드가 들어간 공지글을 검색하고 싶을 때, " \
-                                                   "'baseURL/etl/class/1/announcements/search/?name=성적' 사용\n" \
-                                                   "\n비고\n" \
-                                                   "- 현재는 공지사항의 제목만을 검색합니다. " \
-                                                   "내용 검색도 필요하다면, 말씀 바랍니다."
+                                                   "- id=1인 수업에서 '성적' 키워드가 들어간 공지글 목록의 3번째 페이지를 불러오고 싶을 때, " \
+                                                   "'baseURL/etl/class/1/announcements/search/?name=성적&page=3' GET 요청"
 
 class_announcements_search_responses = {
     200: Schema(
@@ -107,4 +104,15 @@ class_announcements_search_parameter_name = Parameter(
     type=TYPE_STRING,
 )
 
-class_announcements_search_manual_parameters = [class_announcements_search_parameter_name]
+class_announcements_search_parameter_page = Parameter(
+    'page',
+    IN_QUERY,
+    description='페이지네이션을 통해 해당하는 페이지를 불러옵니다.',
+    required=True,
+    type=TYPE_STRING,
+)
+
+class_announcements_search_manual_parameters = [
+    class_announcements_search_parameter_name,
+    class_announcements_search_parameter_page,
+]
