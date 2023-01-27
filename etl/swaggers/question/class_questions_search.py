@@ -14,11 +14,8 @@ class_questions_search_operation_description = '기능\n' \
                                                '\nresponses\n' \
                                                '- 200: 질문글 검색 성공\n' \
                                                '\n사용 예시\n' \
-                                               '- id=1인 수업에서 "질문" 키워드가 들어간 질문글을 검색하고 싶을 때, ' \
-                                               '"baseURL/etl/class/1/questions/search/?name=질문" 사용\n' \
-                                               '\n비고\n' \
-                                               '- 현재는 질문글의 제목만을 검색합니다. ' \
-                                               '내용 검색도 필요하다면, 말씀 바랍니다.'
+                                               '- id=1인 수업에서 "질문" 키워드가 들어간 질문글 목록의 3번째 페이지를 불러오고 싶을 때, ' \
+                                               '"baseURL/etl/class/1/questions/search/?name=질문&page=3" GET 요청'
 
 class_questions_search_responses = {
     200: Schema(
@@ -101,4 +98,15 @@ class_questions_search_parameter_name = Parameter(
     type=TYPE_STRING,
 )
 
-class_questions_search_manual_parameters = [class_questions_search_parameter_name]
+class_questions_search_parameter_page = Parameter(
+    'page',
+    IN_QUERY,
+    description='페이지네이션을 통해 해당하는 페이지를 불러옵니다.',
+    required=True,
+    type=TYPE_STRING,
+)
+
+class_questions_search_manual_parameters = [
+    class_questions_search_parameter_name,
+    class_questions_search_parameter_page,
+]

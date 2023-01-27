@@ -11,6 +11,9 @@ class_questions_get_operation_description = '기능\n' \
                                             '- 아무것도 없습니다.\n' \
                                             '\nresponses\n' \
                                             '- 200: {id}에 해당하는 수업의 딜문글 목록 가져오기 성공\n' \
+                                            '\n사용 예시\n' \
+                                            '- 3번째 페이지에 해당하는 질문글 목록을 불러오고 싶을 때, ' \
+                                            '"baseURL/etl/class/{id}/questions/?page=3" GET 요청' \
 
 class_questions_get_responses = {
     200: openapi.Schema(
@@ -86,6 +89,16 @@ class_questions_get_responses = {
         }
     )
 }
+
+class_questions_get_parameter_page = openapi.Parameter(
+    'page',
+    openapi.IN_QUERY,
+    description='페이지네이션으로 해당하는 페이지를 반환합니다.',
+    required=True,
+    type=openapi.TYPE_INTEGER,
+)
+
+class_questions_get_manual_parameters = [class_questions_get_parameter_page]
 
 class_questions_post_operation_description = '기능\n' \
                                                  '- 특정 수업에서 질문글 하나를 생성합니다.\n' \
