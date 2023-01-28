@@ -108,6 +108,8 @@ class KakaoCallBackView(APIView):
             "code": code
         }
 
+        print("code:", code)
+
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
         access_token_json = requests.post(kakao_token_api, data=data).json()
 
@@ -237,3 +239,5 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
