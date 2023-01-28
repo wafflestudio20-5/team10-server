@@ -16,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
 from etl.serializers import AssignmentFileSerializer
+from dj_rest_auth import views as dj_auth_views
 
 
 # Create your views here.
@@ -62,29 +63,30 @@ class IdCheckAPI(generics.CreateAPIView):
         return Response({"email": "valid"}, status=status.HTTP_200_OK)
 
 
-class LogoutAPI(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserDetailSerializer
+class LogoutAPI(dj_auth_views.LogoutView):
+    pass
 
-    # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
-    @swagger_auto_schema(
-        operation_description=swaggers.logout_operation_description,
-        responses=swaggers.logout_responses,
-    )
-    def get(self, request, *args, **kwargs):
-        response = JsonResponse({
-            "success": True
-        })
-        response.delete_cookie('jwt')
-        return response
+# class LogoutAPI(generics.RetrieveAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = UserDetailSerializer
+#
+#     # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
+#     @swagger_auto_schema(
+#         operation_description=swaggers.logout_operation_description,
+#         responses=swaggers.logout_responses,
+#     )
+#     def get(self, request, *args, **kwargs):
+#         response = JsonResponse({
+#             "success": True
+#         })
+#         response.delete_cookie('jwt')
+#         return response
 
 
-
-
-
-BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
-# BASE_URL = 'http://localhost:8000/'
+# BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+BASE_URL = 'http://127.0.0.1:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
+LOGOUT_URI = BASE_URL + 'authentication/kakao/logout/'
 
 
 class KakaoLoginView(APIView):
@@ -102,9 +104,11 @@ class KakaoCallBackView(APIView):
         data = {
             "grant_type": "authorization_code",
             "client_id": os.environ.get('KAKAO_CLIENT_ID'),
-            "redirection_uri": f"{BASE_URL}authentication/kakao/callback/",
+            "redirection_uri": KAKAO_CALLBACK_URI,
             "code": code
         }
+
+        print("code:", code)
 
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
         access_token_json = requests.post(kakao_token_api, data=data).json()
@@ -147,6 +151,16 @@ class KakaoCallBackView(APIView):
 
             # return redirect(f"{BASE_URL}authentication/set/{user.id}/")
             return JsonResponse(data)
+
+
+class KakaoLogoutView(APIView):
+    def get(self, request):
+        kakao_logout_api = "https://kauth.kakao.com/oauth/logout"
+        logout_redirect_uri = f"{BASE_URL}authentication/logout/"
+        client_id = os.environ.get('KAKAO_CLIENT_ID')
+        state = "none"
+
+        return redirect(f"{kakao_logout_api}?client_id={client_id}&logout_redirect_uri={logout_redirect_uri}&state={state}")
 
 
 class ProfileUploadView(views.APIView):
@@ -225,3 +239,5 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
