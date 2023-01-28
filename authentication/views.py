@@ -107,6 +107,7 @@ class KakaoCallBackView(APIView):
             "code": code
         }
 
+
         print("code: ", code)
 
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
