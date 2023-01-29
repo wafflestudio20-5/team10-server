@@ -62,6 +62,8 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def get(self, request, *args, **kwargs):
         announ = Post.objects.get(id=self.kwargs['pk'])
+        if announ.is_announcement is False:
+            return Response(data='Wrong Access', status=status.HTTP_403_FORBIDDEN)
         announ_serializer = self.get_serializer(announ)
         announ.hits += 1
         announ.save()
