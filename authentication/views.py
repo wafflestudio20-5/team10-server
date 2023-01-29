@@ -1,4 +1,5 @@
 import os
+import boto3
 from rest_framework import generics, status, views
 from authentication.serializers import *
 from rest_framework.response import Response
@@ -83,7 +84,8 @@ class LogoutAPI(dj_auth_views.LogoutView):
 #         return response
 
 
-BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+# BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+BASE_URL = 'http://127.0.0.1:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 LOGOUT_URI = BASE_URL + 'authentication/kakao/logout/'
 
@@ -107,7 +109,7 @@ class KakaoCallBackView(APIView):
             "code": code
         }
 
-        print("code: ", code)
+        print("code:", code)
 
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
         access_token_json = requests.post(kakao_token_api, data=data).json()
@@ -177,6 +179,24 @@ class ProfileUploadView(views.APIView):
         self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
         return Response(status=status.HTTP_201_CREATED)
 
+class ProfileDownloadView(views.APIView):
+    permission_classes = [IsQualified]
+    def get(self, request, format=None):
+        path = self.request.user.profile.name
+        s3 = boto3.client('s3',region_name=os.environ.get('AWS_REGION'), aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
+        url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': 'etl-media-database',
+                'Key': path,
+            },
+            ExpiresIn=600
+        )
+        data = {
+            'download_link': url
+        }
+        return JsonResponse(data, status=status.HTTP_200_OK)
+
 
 class ChangePasswordView(generics.CreateAPIView):
     serializer_class = ChangePasswordSerializer
@@ -238,3 +258,5 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
