@@ -59,15 +59,15 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         responses=swaggers.question_get_responses,
     )
     def get(self, request, *args, **kwargs):
-        next = self.get_queryset().filter(pk__gt=self.kwargs['pk']).order_by('pk').first()
-        prev = self.get_queryset().filter(pk__lt=self.kwargs['pk']).order_by('pk').last()
-        next_serializer = PostSimpleSerializer(next)
-        prev_serializer = PostSimpleSerializer(prev)
-
         ques = Post.objects.get(id=self.kwargs['pk'])
         ques_serializer = self.get_serializer(ques)
         ques.hits += 1
         ques.save()
+
+        next = self.get_queryset().filter(lecture_id=ques.lecture_id).filter(pk__gt=self.kwargs['pk']).order_by('pk').first()
+        prev = self.get_queryset().filter(lecture_id=ques.lecture_id).filter(pk__lt=self.kwargs['pk']).order_by('pk').last()
+        next_serializer = PostSimpleSerializer(next)
+        prev_serializer = PostSimpleSerializer(prev)
 
         data = {
             'post_info': ques_serializer.data,
