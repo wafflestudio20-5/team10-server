@@ -100,6 +100,9 @@ class KakaoLoginView(APIView):
 class KakaoCallBackView(APIView):
     def get(self, request):
         code = request.GET.get("code", None)
+
+        print("code from FE: ", code)
+
         data = {
             "grant_type": "authorization_code",
             "client_id": os.environ.get('KAKAO_CLIENT_ID'),
