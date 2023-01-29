@@ -60,6 +60,8 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def get(self, request, *args, **kwargs):
         ques = Post.objects.get(id=self.kwargs['pk'])
+        if ques.is_announcement is True:
+            return Response(data='Wrong Access', status=status.HTTP_403_FORBIDDEN)
         ques_serializer = self.get_serializer(ques)
         ques.hits += 1
         ques.save()
