@@ -84,8 +84,7 @@ class LogoutAPI(dj_auth_views.LogoutView):
 #         return response
 
 
-# BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
-BASE_URL = 'http://127.0.0.1:8000/'
+BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 LOGOUT_URI = BASE_URL + 'authentication/kakao/logout/'
 
