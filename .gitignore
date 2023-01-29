@@ -7,6 +7,7 @@ etl/__pycache__/
 etl/serializers/__pycache__/
 etl/swaggers/__pycache__/
 etl/swaggers/announcement/__pycache__/
+etl/swaggers/evaluation/__pycache__/
 etl/swaggers/class_/__pycache__/
 etl/swaggers/comment/__pycache__/
 etl/swaggers/assignment/__pycache__/
