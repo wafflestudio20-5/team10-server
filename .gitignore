@@ -17,3 +17,4 @@ etl/migrations/__pycache__/
 team10_server/__pycache__/
 .env
 db.sqlite3
+team10_server/settings.py
