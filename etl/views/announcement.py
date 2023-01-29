@@ -6,6 +6,8 @@ from etl.permissions import *
 from etl.paginations import *
 from drf_yasg.utils import swagger_auto_schema
 import etl.swaggers as swaggers
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class AnnouncementListCreateView(generics.ListCreateAPIView):
@@ -59,10 +61,23 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
         responses=swaggers.announcement_get_responses,
     )
     def get(self, request, *args, **kwargs):
+        next = self.get_queryset().filter(pk__gt=self.kwargs['pk']).order_by('pk').first()
+        prev = self.get_queryset().filter(pk__lt=self.kwargs['pk']).order_by('pk').last()
+        next_serializer = AnnouncementSerializer(next)
+        prev_serializer = AnnouncementSerializer(prev)
+
         announ = Post.objects.get(id=self.kwargs['pk'])
+        announ_serializer = self.get_serializer(announ)
         announ.hits += 1
         announ.save()
-        return super().get(request, *args, **kwargs)
+
+        data = {
+            'post_info': announ_serializer.data,
+            'next_post': next_serializer.data,
+            'prev_post': prev_serializer.data
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description=swaggers.announcement_patch_operation_description,
