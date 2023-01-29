@@ -18,7 +18,7 @@ class AssignmentCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignment
-        fields = ['id', 'lecture', 'name', 'due_date', 'max_grade', 'weight', 'file']
+        fields = ['id', 'lecture', 'name', 'category', 'due_date', 'max_grade', 'weight', 'file']
 
 
 class AssignmentDetailSerializer(serializers.ModelSerializer):
@@ -41,7 +41,7 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
         return link
     class Meta:
         model = Assignment
-        fields = ['id', 'lecture', 'created_by', 'name', 'due_date', 'max_grade', 'weight', 'file', 'url']
+        fields = ['id', 'lecture', 'created_by', 'name', 'category', 'due_date', 'max_grade', 'weight', 'file', 'url']
 
 
 class AssignmentToStudentSerializer(serializers.ModelSerializer):
