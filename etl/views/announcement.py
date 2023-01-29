@@ -61,15 +61,15 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
         responses=swaggers.announcement_get_responses,
     )
     def get(self, request, *args, **kwargs):
-        next = self.get_queryset().filter(pk__gt=self.kwargs['pk']).order_by('pk').first()
-        prev = self.get_queryset().filter(pk__lt=self.kwargs['pk']).order_by('pk').last()
-        next_serializer = PostSimpleSerializer(next)
-        prev_serializer = PostSimpleSerializer(prev)
-
         announ = Post.objects.get(id=self.kwargs['pk'])
         announ_serializer = self.get_serializer(announ)
         announ.hits += 1
         announ.save()
+
+        next = self.get_queryset().filter(lecture_id=announ.lecture_id).filter(pk__gt=self.kwargs['pk']).order_by('pk').first()
+        prev = self.get_queryset().filter(lecture_id=announ.lecture_id).filter(pk__lt=self.kwargs['pk']).order_by('pk').last()
+        next_serializer = PostSimpleSerializer(next)
+        prev_serializer = PostSimpleSerializer(prev)
 
         data = {
             'post_info': announ_serializer.data,
