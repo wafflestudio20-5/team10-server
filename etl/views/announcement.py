@@ -63,8 +63,8 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         next = self.get_queryset().filter(pk__gt=self.kwargs['pk']).order_by('pk').first()
         prev = self.get_queryset().filter(pk__lt=self.kwargs['pk']).order_by('pk').last()
-        next_serializer = AnnouncementSerializer(next)
-        prev_serializer = AnnouncementSerializer(prev)
+        next_serializer = PostSimpleSerializer(next)
+        prev_serializer = PostSimpleSerializer(prev)
 
         announ = Post.objects.get(id=self.kwargs['pk'])
         announ_serializer = self.get_serializer(announ)
