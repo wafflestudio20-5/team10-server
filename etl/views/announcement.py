@@ -67,11 +67,12 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
         prev_serializer = AnnouncementSerializer(prev)
 
         announ = Post.objects.get(id=self.kwargs['pk'])
+        announ_serializer = self.get_serializer(announ)
         announ.hits += 1
         announ.save()
 
         data = {
-            'post_info': super().get(request, *args, **kwargs),
+            'post_info': announ_serializer.data,
             'next_post': next_serializer.data,
             'prev_post': prev_serializer.data
         }
