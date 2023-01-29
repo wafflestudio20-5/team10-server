@@ -32,7 +32,6 @@ class Post(models.Model):
     modified_at = models.DateTimeField(null=True, blank=True)
     is_announcement = models.BooleanField(default=False)
     hits = models.IntegerField(default=0)
-    # previous=models.OneToOneField('self', null=True, blank=True, related_name="next")
 
 
 class Comment(models.Model):
