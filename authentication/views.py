@@ -102,55 +102,59 @@ class KakaoCallBackView(APIView):
         code = request.GET.get("code", None)
 
         print("code from FE: ", code)
-
         data = {
-            "grant_type": "authorization_code",
-            "client_id": os.environ.get('KAKAO_CLIENT_ID'),
-            "redirection_uri": f"{BASE_URL}authentication/kakao/callback/",
             "code": code
         }
+        return Response(data=data, status=status.HTTP_200_OK)
 
-        kakao_token_api = "https://kauth.kakao.com/oauth/token"
-        access_token_json = requests.post(kakao_token_api, data=data).json()
-
-        access_token = access_token_json["access_token"]
-        user_info = requests.get("https://kapi.kakao.com/v2/user/me",
-                                 headers={"Authorization": f"Bearer {access_token}"})
-        user_json = user_info.json()
-
-        kakao_account = user_json.get("kakao_account")
-        email = kakao_account.get("email", "team10@waffle.com")
-
-        try:
-            user = User.objects.get(email=email)
-            update_last_login(None, user)
-            token = RefreshToken.for_user(user=user)
-
-            data = {
-                'user': user.id,
-                'refresh_token': str(token),
-                'access_token': str(token.access_token)
-            }
-
-            return JsonResponse(data)
-
-        except User.DoesNotExist:
-            user = User.objects.create_user(email=email)
-            user.is_social_login = True
-            user.save()
-            # SocialAccount.objects.create(user=user)
-
-            update_last_login(None, user)
-            token = RefreshToken.for_user(user=user)
-
-            data = {
-                'user': user.id,
-                'refresh_token': str(token),
-                'access_token': str(token.access_token)
-            }
-
-            # return redirect(f"{BASE_URL}authentication/set/{user.id}/")
-            return JsonResponse(data)
+        # data = {
+        #     "grant_type": "authorization_code",
+        #     "client_id": os.environ.get('KAKAO_CLIENT_ID'),
+        #     "redirection_uri": f"{BASE_URL}authentication/kakao/callback/",
+        #     "code": code
+        # }
+        #
+        # kakao_token_api = "https://kauth.kakao.com/oauth/token"
+        # access_token_json = requests.post(kakao_token_api, data=data).json()
+        #
+        # access_token = access_token_json["access_token"]
+        # user_info = requests.get("https://kapi.kakao.com/v2/user/me",
+        #                          headers={"Authorization": f"Bearer {access_token}"})
+        # user_json = user_info.json()
+        #
+        # kakao_account = user_json.get("kakao_account")
+        # email = kakao_account.get("email", "team10@waffle.com")
+        #
+        # try:
+        #     user = User.objects.get(email=email)
+        #     update_last_login(None, user)
+        #     token = RefreshToken.for_user(user=user)
+        #
+        #     data = {
+        #         'user': user.id,
+        #         'refresh_token': str(token),
+        #         'access_token': str(token.access_token)
+        #     }
+        #
+        #     return JsonResponse(data)
+        #
+        # except User.DoesNotExist:
+        #     user = User.objects.create_user(email=email)
+        #     user.is_social_login = True
+        #     user.save()
+        #     # SocialAccount.objects.create(user=user)
+        #
+        #     update_last_login(None, user)
+        #     token = RefreshToken.for_user(user=user)
+        #
+        #     data = {
+        #         'user': user.id,
+        #         'refresh_token': str(token),
+        #         'access_token': str(token.access_token)
+        #     }
+        #
+        #     # return redirect(f"{BASE_URL}authentication/set/{user.id}/")
+        #     return JsonResponse(data)
 
 
 class ProfileUploadView(views.APIView):
