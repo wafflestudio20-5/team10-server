@@ -98,7 +98,7 @@ class KakaoLoginView(APIView):
 
 
 class KakaoCallBackView(APIView):
-    def get(self, request):
+    def post(self, request):
         code = request.data.get("code", None)
 
         print("code from FE: ", code)
