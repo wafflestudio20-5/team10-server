@@ -11,7 +11,6 @@ urlpatterns = [
     path('class/enroll/', EnrollClassView.as_view()),
     path('class/drop/', DropClassView.as_view()),
     path('class/<int:pk>/user-list/', StudentListView.as_view()),
-    path('classes/search/', ClassSearchView.as_view()),
 
     # 과제
     path('assignments/', AssignmentListCreateView.as_view()),
@@ -28,12 +27,10 @@ urlpatterns = [
     # 공지사항 게시판
     path('class/<int:pk>/announcements/', AnnouncementListCreateView.as_view()),
     path('announcement/<int:pk>/', AnnouncementDetailView.as_view()),
-    path('class/<int:pk>/announcements/search/', AnnouncementSearchView.as_view()),
 
     # 질의응답 게시판
     path('class/<int:pk>/questions/', QuestionListCreateView.as_view()),
     path('question/<int:pk>/', QuestionDetailView.as_view()),
-    path('class/<int:pk>/questions/search/', QuestionSearchView.as_view()),
 
     # 댓글
     path('post/<int:pk>/comments/', CommentCreateView.as_view()),

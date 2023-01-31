@@ -15,14 +15,10 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
     serializer_class = AnnouncementSerializer
 
-    def __init__(self):
-        super().__init__()
-        self.total_count = 0
-
     def get_queryset(self):
-        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True).order_by('-created_at')
-        self.total_count = queryset.count()
-        return queryset
+        name = self.request.GET.get('name', '')
+        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=True)\
+            .filter(title__contains=name).order_by('-created_at')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -35,10 +31,7 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
         manual_parameters=swaggers.class_announcements_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
-        get_data = super().get(request, *args, **kwargs)
-        # OrderedDict 타입인 .data에 접근하여 response를 조작할 수 있음.
-        get_data.data['total_announcement_count'] = self.total_count
-        return get_data
+        return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.class_announcements_post_operation_description,
@@ -94,33 +87,3 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
-
-
-class AnnouncementSearchView(generics.ListAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
-    serializer_class = AnnouncementSerializer
-    pagination_class = PostListPagination
-
-    def __init__(self):
-        super().__init__()
-        self.total_count = 0
-
-    # TODO: 현재는 제목 검색만으로 구현해 놓았는데 내용 검색도 필요한가??
-    def get_queryset(self):
-        announcement_name = self.request.GET['name']
-        queryset = Post.objects.filter(is_announcement=True)\
-            .filter(lecture_id=self.kwargs['pk'])\
-            .filter(title__contains=announcement_name)\
-            .order_by('-created_at')
-        self.total_count = queryset.count()
-        return queryset
-
-    @swagger_auto_schema(
-        operation_description=swaggers.class_announcements_search_operation_description,
-        responses=swaggers.class_announcements_search_responses,
-        manual_parameters=swaggers.class_announcements_search_manual_parameters,
-    )
-    def get(self, request, *args, **kwargs):
-        get_data = super().get(request, *args, **kwargs)
-        get_data.data['total_announcement_count'] = self.total_count
-        return get_data

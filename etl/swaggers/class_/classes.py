@@ -11,8 +11,12 @@ classes_get_operation_description = '기능\n' \
                                   '\nresponses\n' \
                                   '- 200: 모든 수업 목록 받아오기 성공\n' \
                                   '\n사용 예시\n' \
-                                  '- 세 번쩨 페이지에 해당하는 수업 목록을 불러오고 싶다면, "baseURL/etl/classes/?page=3"를 ' \
-                                    '통해 가져올 수 있습니다.'
+                                  '- 3번쩨 페이지에 해당하는 수업 목록을 불러오고 싶다면, "baseURL/etl/classes/?page=3"를 ' \
+                                    '통해 가져올 수 있습니다.\n' \
+                                    '- "영어" 키워드가 제목에 들어간 수업목록의 2번째 페이지를 불러오고 싶을 때, ' \
+                                    '"baseURL/etl/classes/?name=영어&page=2" GET 요청\n' \
+                                    '- 아무것도 검색하지 않고 단순히 모든 수업 중 첫번째 페이지를 불러오고 싶을 때, ' \
+                                    '"baseURL/etl/classes/" GET 요청'
 
 classes_get_responses = {
     200: openapi.Schema(
@@ -62,15 +66,26 @@ classes_get_responses = {
     ),
 }
 
+classes_get_parameter_name = openapi.Parameter(
+    'name',
+    openapi.IN_QUERY,
+    description='수업 제목을 검색할 키워드를 담습니다.\n'
+                '검색할 내용이 parameter로 입력되지 않는다면, 모든 공지사항 목록을 불러옵니다.',
+    type=openapi.TYPE_STRING,
+)
+
 classes_get_parameter_page = openapi.Parameter(
     'page',
     openapi.IN_QUERY,
-    description='페이지네이션으로 해당하는 페이지를 반환합니다.',
-    required=True,
+    description='페이지네이션으로 해당하는 페이지를 반환합니다.\n'
+                '페이지가 parameter로 지정되지 않는다면, 첫 번째 페이지를 반환합니다.',
     type=openapi.TYPE_INTEGER,
 )
 
-classes_get_manual_parameters = [classes_get_parameter_page]
+classes_get_manual_parameters = [
+    classes_get_parameter_name,
+    classes_get_parameter_page,
+]
 
 classes_post_operation_description = '기능\n' \
                                    '- 수업 하나를 생성합니다.\n' \

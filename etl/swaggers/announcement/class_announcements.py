@@ -13,7 +13,11 @@ class_announcements_get_operation_description = '기능\n' \
                                                 '- 200: {id}에 해당하는 수업의 공지사항 목록 가져오기 성공\n' \
                                                 '\n사용 예시\n' \
                                                 '- 3번째 페이지에 해당하는 공지사항 목록을 불러오고 싶을 때, ' \
-                                                '"baseURL/etl/class/{id}/announcements/?page=3" GET 요청'
+                                                '"baseURL/etl/class/{id}/announcements/?page=3" GET 요청\n' \
+                                                '- \'공\' 키워드가 제목에 들어가는 공지사항 중 2번째 페이지를 불러오고 싶을 때, ' \
+                                                '"baseURL/etl/class/{id}/announcements/?name=공&page=2" GET 요청\n' \
+                                                '- 아무것도 검색하지 않고 단순히 모든 공지사항 중 첫번째 페이지를 불러오고 싶을 때, ' \
+                                                '"baseURL/etl/class/{id}/announcements/" GET 요청'
 
 class_announcements_get_responses = {
     200: openapi.Schema(
@@ -86,7 +90,7 @@ class_announcements_get_responses = {
                     }
                 )
             ),
-            'total_announcement_count': openapi.Schema(
+            'count': openapi.Schema(
                 type=openapi.TYPE_INTEGER,
                 description='해당 수업에 속하는 공지글들의 갯수입니다.'
             ),
@@ -97,12 +101,23 @@ class_announcements_get_responses = {
 class_announcements_get_parameter_page = openapi.Parameter(
     'page',
     openapi.IN_QUERY,
-    description='페이지네이션으로 해당하는 페이지를 반환합니다.',
-    required=True,
+    description='페이지네이션으로 해당하는 페이지를 반환합니다.\n'
+                '페이지가 parameter로 지정되지 않는다면, 첫 번째 페이지를 반환합니다.',
     type=openapi.TYPE_INTEGER,
 )
 
-class_announcements_get_manual_parameters = [class_announcements_get_parameter_page]
+class_announcements_get_parameter_name = openapi.Parameter(
+    'name',
+    openapi.IN_QUERY,
+    description='공지사항 제목을 검색할 키워드를 담습니다.\n'
+                '검색할 내용이 parameter로 입력되지 않는다면, 모든 공지사항 목록을 불러옵니다.',
+    type=openapi.TYPE_STRING,
+)
+
+class_announcements_get_manual_parameters = [
+    class_announcements_get_parameter_name,
+    class_announcements_get_parameter_page,
+]
 
 class_announcements_post_operation_description = '기능\n' \
                                                  '- 특정 수업에서 공지사항 하나를 생성합니다.\n' \

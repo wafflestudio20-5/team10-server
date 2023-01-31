@@ -13,7 +13,11 @@ class_questions_get_operation_description = '기능\n' \
                                             '- 200: {id}에 해당하는 수업의 딜문글 목록 가져오기 성공\n' \
                                             '\n사용 예시\n' \
                                             '- 3번째 페이지에 해당하는 질문글 목록을 불러오고 싶을 때, ' \
-                                            '"baseURL/etl/class/{id}/questions/?page=3" GET 요청' \
+                                            '"baseURL/etl/class/{id}/questions/?page=3" GET 요청\n' \
+                                            '- "질문" 키워드가 제목에 들어가는 질문글 중 2번째 페이지를 불러오고 싶을 때, ' \
+                                            '"baseURL/etl/class/{id}/questions/?name=질문&page=2" GET 요청\n' \
+                                            '- 아무것도 검색하지 않고 단순히 모든 질문글 중 첫번째 페이지를 불러오고 싶을 떄, ' \
+                                            '"baseURL/etl/class/{id}/questions/" GET 요청'
 
 class_questions_get_responses = {
     200: openapi.Schema(
@@ -82,7 +86,7 @@ class_questions_get_responses = {
                     }
                 )
             ),
-            'total_question_count': openapi.Schema(
+            'count': openapi.Schema(
                 type=openapi.TYPE_INTEGER,
                 description='해당 수업에 속하는 질문글들의 갯수입니다.'
             ),
@@ -90,15 +94,26 @@ class_questions_get_responses = {
     )
 }
 
+class_questions_get_parameter_name = openapi.Parameter(
+    'name',
+    openapi.IN_QUERY,
+    description='질문글 제목을 검색할 키워드를 담습니다.\n'
+                '검색할 내용이 parameter로 입력되지 않는다면, 모든 질문글 목록을 불러옵니다.',
+    type=openapi.TYPE_STRING,
+)
+
 class_questions_get_parameter_page = openapi.Parameter(
     'page',
     openapi.IN_QUERY,
-    description='페이지네이션으로 해당하는 페이지를 반환합니다.',
-    required=True,
+    description='페이지네이션으로 해당하는 페이지를 반환합니다.\n'
+                '페이지가 parameter로 지정되지 않는다면, 첫 번째 페이지를 반환합니다.',
     type=openapi.TYPE_INTEGER,
 )
 
-class_questions_get_manual_parameters = [class_questions_get_parameter_page]
+class_questions_get_manual_parameters = [
+    class_questions_get_parameter_name,
+    class_questions_get_parameter_page,
+]
 
 class_questions_post_operation_description = '기능\n' \
                                                  '- 특정 수업에서 질문글 하나를 생성합니다.\n' \
