@@ -9,19 +9,16 @@ import etl.swaggers as swaggers
 from rest_framework.response import Response
 from rest_framework import status
 
+
 class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
     serializer_class = QuestionSerializer
 
-    def __init__(self):
-        super().__init__()
-        self.total_count = 0
-
     def get_queryset(self):
-        queryset = Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False).order_by('-created_at')
-        self.total_count = queryset.count()
-        return queryset
+        name = self.request.GET.get('name', '')
+        return Post.objects.filter(lecture_id=self.kwargs['pk']).filter(is_announcement=False)\
+            .filter(title__contains=name).order_by('-created_at')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -34,9 +31,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
         manual_parameters=swaggers.class_questions_get_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
-        get_data = super().get(request, *args, **kwargs)
-        get_data.data['total_question_count'] = self.total_count
-        return get_data
+        return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description=swaggers.class_questions_post_operation_description,
@@ -91,35 +86,4 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         operation_description=swaggers.question_delete_operation_description,
     )
     def delete(self, request, *args, **kwargs):
-
         return super().delete(request, *args, **kwargs)
-
-
-class QuestionSearchView(generics.ListAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
-    serializer_class = QuestionSerializer
-    pagination_class = PostListPagination
-
-    def __init__(self):
-        super().__init__()
-        self.total_count = 0
-
-    # TODO: 현재는 제목 검색만 구현되어 있음.
-    def get_queryset(self):
-        question_name = self.request.GET['name']
-        queryset = Post.objects.filter(is_announcement=False)\
-            .filter(lecture_id=self.kwargs['pk'])\
-            .filter(title__contains=question_name)\
-            .order_by('-created_at')
-        self.total_count = queryset.count()
-        return queryset
-
-    @swagger_auto_schema(
-        operation_description=swaggers.class_questions_search_operation_description,
-        responses=swaggers.class_questions_search_responses,
-        manual_parameters=swaggers.class_questions_search_manual_parameters,
-    )
-    def get(self, request, *args, **kwargs):
-        get_data = super().get(request, *args, **kwargs)
-        get_data.data['total_question_count'] = self.total_count
-        return get_data

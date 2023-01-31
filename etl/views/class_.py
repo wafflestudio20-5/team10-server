@@ -11,9 +11,12 @@ import etl.swaggers as swaggers
 
 class ClassListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
-    queryset = Class.objects.all().order_by('name')
     serializer_class = ClassSerializer
     pagination_class = ClassListPagination
+
+    def get_queryset(self):
+        name = self.request.GET.get('name', '')
+        return Class.objects.filter(name__contains=name).order_by('name')
 
     @swagger_auto_schema(
         operation_description=swaggers.classes_get_operation_description,
@@ -109,24 +112,6 @@ class StudentListView(generics.ListAPIView):
         operation_description=swaggers.class_user_list_operation_description,
         responses=swaggers.class_user_list_responses,
         manual_parameters=swaggers.class_user_list_manual_paramters,
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
-class ClassSearchView(generics.ListAPIView):
-    serializer_class = ClassSerializer
-    permissions = [IsAdmin | (IsAuthenticated & IsQualified)]
-    pagination_class = ClassListPagination
-
-    def get_queryset(self):
-        class_name = self.request.GET['class_name']
-        return Class.objects.filter(name__contains=class_name)
-
-    @swagger_auto_schema(
-        operation_description=swaggers.classes_search_operation_description,
-        responses=swaggers.classes_search_responses,
-        manual_parameters=swaggers.classes_search_manual_parameters,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
