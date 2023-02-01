@@ -106,7 +106,8 @@ class StudentListView(generics.ListAPIView):
     permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
 
     def get_queryset(self):
-        return User.objects.filter(classes=self.kwargs['pk']).order_by('student_id')
+        name = self.request.GET.get('name', '')
+        return User.objects.filter(classes=self.kwargs['pk']).filter(username__contains=name).order_by('student_id')
 
     @swagger_auto_schema(
         operation_description=swaggers.class_user_list_operation_description,

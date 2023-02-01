@@ -114,8 +114,9 @@ class UserIDSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=True, write_only=True)
     new_password = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = User
-        fields = ['new_password']
+        fields = ['password', 'new_password']

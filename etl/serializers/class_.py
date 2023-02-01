@@ -16,6 +16,7 @@ class ClassSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = super().create(validated_data)
+        self.context['request'].user.classes.add(instance)
         Module.objects.create(lecture=instance)
         return instance
 
