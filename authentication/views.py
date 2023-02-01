@@ -83,6 +83,8 @@ class LogoutAPI(generics.RetrieveAPIView):
 BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
 # BASE_URL = 'http://localhost:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
+LOGOUT_URL = BASE_URL + 'authentication/logout/'
+LOGIN_URL = BASE_URL + 'authentication/login/'
 
 
 class KakaoLoginView(APIView):
@@ -97,8 +99,6 @@ class KakaoLoginView(APIView):
 class KakaoCallBackView(APIView):
     def post(self, request):
         code = request.data.get("code", None)
-
-        print("code from FE: ", code)
 
         data = {
             "grant_type": "authorization_code",
@@ -115,6 +115,7 @@ class KakaoCallBackView(APIView):
                                  headers={"Authorization": f"Bearer {access_token}"})
         user_json = user_info.json()
 
+        kakao_id = user_json.get("id")
         kakao_account = user_json.get("kakao_account")
         email = kakao_account.get("email", "team10@waffle.com")
 
@@ -134,6 +135,7 @@ class KakaoCallBackView(APIView):
         except User.DoesNotExist:
             user = User.objects.create_user(email=email)
             user.is_social_login = True
+            user.kakao_id = kakao_id
             user.save()
             # SocialAccount.objects.create(user=user)
 
@@ -150,6 +152,33 @@ class KakaoCallBackView(APIView):
             return Response(data=data, status=status.HTTP_201_CREATED)
 
 
+class KakaoLogoutView(APIView):
+    def get(self, request):
+        kakao_rest_api_key = os.environ.get('KAKAO_CLIENT_ID')
+        logout_redirect_uri = LOGOUT_URL
+        state = "none"
+        kakao_service_logout_url = "https://kauth.kakao.com/oauth/logout"
+        return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+
+
+class KakaoDisconnect(APIView):
+    def post(self, request):
+        user = request.user
+        kakao_admin_key = os.environ.get('KAKAO_ADMIN_KEY')
+        kakao_service_disconnect_url = "https://kapi.kakao.com/v1/user/unlink"
+        headers = {"Authorization": f"KakaoAK {kakao_admin_key}"}
+        data = {"target_id_type": "user_id", "target_id": user.kakao_id}
+        res = requests.post(kakao_service_disconnect_url, headers=headers, data=data)
+
+        deleted_user_id = res.json().get("id")
+        if deleted_user_id == user.kakao_id:
+            print("Success Kakao Disconnect")
+        else:
+            print("Fail Kakao Disconnect")
+
+        return redirect(LOGIN_URL)
+
+
 class ProfileUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
     permission_classes = [IsQualified]
@@ -164,6 +193,7 @@ class ProfileUploadView(views.APIView):
         profile_obj = request.data.get('file', None)
         self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
         return Response(status=status.HTTP_201_CREATED)
+
 
 class ProfileDownloadView(views.APIView):
     permission_classes = [IsQualified]

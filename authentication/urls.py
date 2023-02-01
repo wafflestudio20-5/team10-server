@@ -12,6 +12,8 @@ urlpatterns = [
     path('users/', UserListView.as_view()),
     path('user/<int:pk>/', UserDetailView.as_view()),
     path('kakao/login/', KakaoLoginView.as_view()),
+    path('kakao/logout/', KakaoLogoutView.as_view()),
+    path('kakao/disconnect/', KakaoDisconnect.as_view()),
     path('kakao/callback/', KakaoCallBackView.as_view()),
     path('profile/', ProfileUploadView.as_view()),
     path('profile/download/', ProfileDownloadView.as_view()),
