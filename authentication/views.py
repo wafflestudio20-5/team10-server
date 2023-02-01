@@ -198,12 +198,12 @@ class ChangePasswordView(generics.CreateAPIView):
         new_password = request.data['new_password']
 
         if not check_password(password, request.user.password):
-            return Response({"error": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "wrong password."}, status=status.HTTP_400_BAD_REQUEST)
 
         if len(new_password) < 8:
             return Response({"error": "too short password. password length should be >=8."},
                             status=status.HTTP_400_BAD_REQUEST)
-        same_with_before_password = check_password(new_password, request.user.password)
+        same_with_before_password = password == new_password
         if same_with_before_password:
             return Response({"error": "same with previous password."}, status=status.HTTP_400_BAD_REQUEST)
         request.user.set_password(new_password)
