@@ -120,3 +120,4 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['password', 'new_password']
+
