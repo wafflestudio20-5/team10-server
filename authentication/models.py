@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     profile = models.ImageField(null=True, upload_to="profiles/", blank=True)
     is_social_login = models.BooleanField(default=False)
+    kakao_id = models.IntegerField(null=True, blank=True)
 
     objects = UserManager()
     USERNAME_FIELD = "email"
