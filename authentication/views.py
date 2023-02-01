@@ -194,7 +194,12 @@ class ChangePasswordView(generics.CreateAPIView):
         responses=swaggers.change_password_responses,
     )
     def post(self, request, *args, **kwargs):
+        password = request.data['password']
         new_password = request.data['new_password']
+
+        if not check_password(password, request.user.password):
+            return Response({"error": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
+
         if len(new_password) < 8:
             return Response({"error": "too short password. password length should be >=8."},
                             status=status.HTTP_400_BAD_REQUEST)
