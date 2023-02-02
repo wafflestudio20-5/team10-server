@@ -80,8 +80,8 @@ class LogoutAPI(generics.RetrieveAPIView):
         return response
 
 
-# BASE_URL = 'http://etlclone-env.eba-dxtv92ct.ap-northeast-2.elasticbeanstalk.com/'
-BASE_URL = 'http://127.0.0.1:8000/'
+BASE_URL = 'http://etlclone-env.eba-dxtv92ct.ap-northeast-2.elasticbeanstalk.com/'
+# BASE_URL = 'http://127.0.0.1:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 LOGOUT_URL = BASE_URL + 'authentication/logout/'
 LOGIN_URL = BASE_URL + 'authentication/login/'
