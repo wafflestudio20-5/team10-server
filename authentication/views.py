@@ -80,7 +80,7 @@ class LogoutAPI(generics.RetrieveAPIView):
         return response
 
 
-BASE_URL = 'http://etlclonetoyproject-env.eba-a6rqj2ev.ap-northeast-2.elasticbeanstalk.com/'
+BASE_URL = 'http://etlclone-env.eba-dxtv92ct.ap-northeast-2.elasticbeanstalk.com/'
 # BASE_URL = 'http://localhost:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 LOGOUT_URL = BASE_URL + 'authentication/logout/'
@@ -115,7 +115,8 @@ class KakaoCallBackView(APIView):
                                  headers={"Authorization": f"Bearer {access_token}"})
         user_json = user_info.json()
 
-        kakao_id = user_json.get("id")
+        kakao_id = user_json.get("id", "1111111111")
+        print("kakao_id: ", kakao_id)
         kakao_account = user_json.get("kakao_account")
         email = kakao_account.get("email", "team10@waffle.com")
 
