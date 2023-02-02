@@ -80,8 +80,8 @@ class LogoutAPI(generics.RetrieveAPIView):
         return response
 
 
-BASE_URL = 'http://etlclone-env.eba-dxtv92ct.ap-northeast-2.elasticbeanstalk.com/'
-# BASE_URL = 'http://127.0.0.1:8000/'
+# BASE_URL = 'http://etlclone-env.eba-dxtv92ct.ap-northeast-2.elasticbeanstalk.com/'
+BASE_URL = 'http://127.0.0.1:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'authentication/kakao/callback/'
 LOGOUT_URL = BASE_URL + 'authentication/logout/'
 LOGIN_URL = BASE_URL + 'authentication/login/'
@@ -170,13 +170,13 @@ class KakaoDisconnect(APIView):
         data = {"target_id_type": "user_id", "target_id": int(user.kakao_id)}
         res = requests.post(kakao_service_disconnect_url, headers=headers, data=data)
 
-        deleted_user_id = res.json().get("id")
+        deleted_user_id = str(res.json().get("id"))
         if deleted_user_id == user.kakao_id:
-            print("Success Kakao Disconnect")
+            data_ = "Success Kakao Disconnect"
         else:
-            print("Fail Kakao Disconnect")
+            data_ = "Fail Kakao Disconnect"
 
-        return redirect(LOGIN_URL)
+        return Response(data=data_, status=status.HTTP_200_OK)
 
 
 class ProfileUploadView(views.APIView):
