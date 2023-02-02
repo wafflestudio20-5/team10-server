@@ -116,6 +116,7 @@ class KakaoCallBackView(APIView):
         user_json = user_info.json()
 
         kakao_id = user_json.get("id")
+        print("kakao_id: ", kakao_id)
         kakao_account = user_json.get("kakao_account")
         email = kakao_account.get("email", "team10@waffle.com")
 
