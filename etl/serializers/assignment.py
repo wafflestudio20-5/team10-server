@@ -47,7 +47,7 @@ class AssignmentDetailSerializer(serializers.ModelSerializer):
 class AssignmentToStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignmentToStudent
-        fields = ['id', 'is_submitted', 'is_graded', 'score']
+        fields = ['id', 'assignment', 'is_submitted', 'is_graded', 'score']
 
 
 class AssignmentGradingSerializer(serializers.ModelSerializer):
