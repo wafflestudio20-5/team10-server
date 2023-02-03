@@ -64,7 +64,7 @@ class IdCheckAPI(generics.CreateAPIView):
 
 
 class LogoutAPI(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
 
     # TODO: Insomnia로 확인해보니 logout 후에도 토큰이 잘 작동. 정상 작동하는 것인지 확인 필요.
@@ -158,8 +158,9 @@ class KakaoLogoutView(APIView):
         logout_redirect_uri = LOGOUT_URL
         state = "none"
         kakao_service_logout_url = "https://kauth.kakao.com/oauth/logout"
-        res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
-        return Response(data="Kakao Logout Success", status=res.status_code)
+        # res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        # return Response(data="Kakao Logout Success", status=res.status_code)
+        return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
 
 
 class KakaoDisconnect(APIView):
