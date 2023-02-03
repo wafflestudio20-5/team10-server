@@ -174,8 +174,11 @@ class KakaoDisconnect(APIView):
 
         deleted_user_id = str(res.json().get("id"))
         print("deleted_user_id: ", deleted_user_id)
+
         if deleted_user_id == user.kakao_id:
             data_ = "Success Kakao Disconnect"
+        elif deleted_user_id is None:
+            data_ = "kakao_id is None"
         else:
             data_ = "Fail Kakao Disconnect"
 
