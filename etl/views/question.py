@@ -1,6 +1,5 @@
 from etl.serializers import *
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
 from etl.models import *
 from etl.permissions import *
 from etl.paginations import *
@@ -12,7 +11,7 @@ from rest_framework import status
 
 class QuestionListCreateView(generics.ListCreateAPIView):
     pagination_class = PostListPagination
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    permission_classes = (IsAdminOrQualified,)
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
@@ -43,7 +42,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
 
 
 class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessor | IsCreatorReadOnly))]
+    permission_classes = (IsAdminOrProfessorOrCreatorOrReadOnly,)
     serializer_class = PostDetailSerializer
 
     def get_queryset(self):
