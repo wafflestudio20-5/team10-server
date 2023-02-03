@@ -158,9 +158,9 @@ class KakaoLogoutView(APIView):
         logout_redirect_uri = LOGOUT_URL
         state = "none"
         kakao_service_logout_url = "https://kauth.kakao.com/oauth/logout"
-        # res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
-        # return Response(data="Kakao Logout Success", status=res.status_code)
-        return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        return Response(data="Kakao Logout Success", status=res.status_code)
+        # return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
 
 
 class KakaoDisconnect(APIView):
