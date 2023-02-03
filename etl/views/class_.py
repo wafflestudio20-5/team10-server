@@ -101,7 +101,7 @@ class DropClassView(generics.CreateAPIView):
 
 class StudentListView(generics.ListAPIView):
     pagination_class = StudentListPagination
-    serializer_class = UserSimpleSerializer
+    serializer_class = UserListSerializer
     permission_classes = (IsAdminOrQualified,)
 
     def get_queryset(self):
