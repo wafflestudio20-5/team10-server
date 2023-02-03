@@ -160,11 +160,11 @@ class KakaoLogoutView(APIView):
         logout_redirect_uri = LOGOUT_URL
         state = "none"
         kakao_service_logout_url = "https://kauth.kakao.com/oauth/logout"
-        res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
-        logger.info("## respond of kakao logout ##")
-        logger.info(res)
-        return Response(data="Kakao Logout Success", status=res.status_code)
-        # return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        # res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        # logger.info("## respond of kakao logout ##")
+        # logger.info(res)
+        # return Response(data="Kakao Logout Success", status=res.status_code)
+        return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
 
 
 class KakaoDisconnect(APIView):
@@ -203,6 +203,8 @@ class ProfileUploadView(views.APIView):
         if 'file' not in request.data:
             Response(status=status.HTTP_400_BAD_REQUEST)
         profile_obj = request.data.get('file', None)
+        logger.info("## profile ##")
+        logger.info(profile_obj)
         self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
         return Response(status=status.HTTP_201_CREATED)
 
