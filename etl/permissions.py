@@ -35,3 +35,85 @@ class IsCreatorReadOnly(permissions.BasePermission):
 class IsProfessor(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_professor
+
+
+# Same: [IsAdmin | (IsAuthenticated & IsQualified & IsProfessorOrReadOnly)]
+class IsAdminOrProfessorOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_superuser:
+            return True
+        if bool(request.user.username is None or request.user.student_id is None):
+            return False
+        return request.user.is_professor
+
+
+# Same: [IsAdmin | (IsAuthenticated & IsQualified & IsProfessor)]
+class IsAdminOrProfessor(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        if bool(request.user.username is None or request.user.student_id is None):
+            return False
+        return request.user.is_professor
+
+
+# Same: [IsAdmin | (IsAuthenticated & IsQualified & (~IsProfessor))]
+class IsAdminOrStudent(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        if bool(request.user.username is None or request.user.student_id is None):
+            return False
+        return not request.user.is_professor
+
+
+# Same: [IsAdmin | (IsAuthenticated & IsQualified)]
+class IsAdminOrQualified(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return bool(request.user.username is not None and request.user.student_id is not None)
+
+
+# Same: [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
+class IsAdminOrCreatorOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_superuser:
+            return True
+        if bool(request.user.username is None or request.user.student_id is None):
+            return False
+        return obj.created_by == request.user
+
+
+# Same: [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessorOrReadOnly | IsCreatorReadOnly))]
+class IsAdminOrProfessorOrCreatorOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_superuser:
+            return True
+        if bool(request.user.username is None or request.user.student_id is None):
+            return False
+        return request.user.is_professor or obj.created_by == request.user

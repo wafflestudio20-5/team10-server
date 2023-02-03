@@ -1,6 +1,5 @@
 from etl.serializers import *
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
 from etl.models import *
 from etl.permissions import *
 from drf_yasg.utils import swagger_auto_schema
@@ -8,7 +7,7 @@ import etl.swaggers as swaggers
 
 
 class CommentCreateView(generics.CreateAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    permission_classes = (IsAdminOrQualified,)
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
@@ -27,7 +26,7 @@ class CommentCreateView(generics.CreateAPIView):
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (IsProfessorOrReadOnly | IsCreatorReadOnly))]
+    permission_classes = (IsAdminOrProfessorOrCreatorOrReadOnly,)
     serializer_class = CommentDetailSerializer
     queryset = Comment.objects.all()
 

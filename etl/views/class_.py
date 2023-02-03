@@ -1,6 +1,5 @@
 from etl.serializers import *
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
 from etl.models import *
 from etl.permissions import *
 from etl.paginations import *
@@ -10,7 +9,7 @@ import etl.swaggers as swaggers
 
 
 class ClassListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsProfessorOrReadOnly)]
+    permission_classes = (IsAdminOrProfessorOrReadOnly,)
     serializer_class = ClassSerializer
     pagination_class = ClassListPagination
 
@@ -36,7 +35,7 @@ class ClassListCreateView(generics.ListCreateAPIView):
 
 
 class ProfessorClassListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsProfessor)]
+    permission_classes = (IsAdminOrProfessor,)
     serializer_class = ClassSerializer
     pagination_class = ClassListPagination
 
@@ -61,7 +60,7 @@ class ProfessorClassListCreateView(generics.ListCreateAPIView):
 
 
 class EnrollClassView(generics.CreateAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (~IsProfessor))]
+    permission_classes = (IsAdminOrStudent,)
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
@@ -81,7 +80,7 @@ class EnrollClassView(generics.CreateAPIView):
 
 
 class DropClassView(generics.CreateAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & (~IsProfessor))]
+    permission_classes = (IsAdminOrStudent,)
     serializer_class = EnrollDropSerializer
 
     @swagger_auto_schema(
@@ -103,7 +102,7 @@ class DropClassView(generics.CreateAPIView):
 class StudentListView(generics.ListAPIView):
     pagination_class = StudentListPagination
     serializer_class = UserSimpleSerializer
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified)]
+    permission_classes = (IsAdminOrQualified,)
 
     def get_queryset(self):
         name = self.request.GET.get('name', '')
@@ -119,7 +118,7 @@ class StudentListView(generics.ListAPIView):
 
 
 class ClassDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdmin | (IsAuthenticated & IsQualified & IsCreatorReadOnly)]
+    permission_classes = (IsAdminOrCreatorOrReadOnly,)
     serializer_class = ClassSerializer
     queryset = Class.objects.all()
 

@@ -183,7 +183,7 @@ class KakaoDisconnect(APIView):
 
 class ProfileUploadView(views.APIView):
     parser_classes = [MultiPartParser, ]
-    permission_classes = [IsQualified]
+    permission_classes = (IsAdminOrQualified,)
 
     @swagger_auto_schema(
         operation_description=swaggers.profile_put_operation_description,
@@ -198,7 +198,7 @@ class ProfileUploadView(views.APIView):
 
 
 class ProfileDownloadView(views.APIView):
-    permission_classes = [IsQualified]
+    permission_classes = (IsAdminOrQualified,)
     def get(self, request, format=None):
         path = self.request.user.profile.name
         s3 = boto3.client('s3',region_name=os.environ.get('AWS_REGION'), aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
