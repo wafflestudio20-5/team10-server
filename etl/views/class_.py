@@ -106,7 +106,7 @@ class StudentListView(generics.ListAPIView):
 
     def get_queryset(self):
         name = self.request.GET.get('name', '')
-        return User.objects.filter(classes=self.kwargs['pk']).filter(username__contains=name).order_by('student_id')
+        return User.objects.filter(classes=self.kwargs['pk']).filter(username__contains=name).order_by('-is_professor', 'student_id')
 
     @swagger_auto_schema(
         operation_description=swaggers.class_user_list_operation_description,
