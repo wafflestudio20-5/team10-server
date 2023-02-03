@@ -17,7 +17,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from allauth.socialaccount.models import SocialAccount
 from etl.serializers import AssignmentFileSerializer
-
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
@@ -158,9 +160,11 @@ class KakaoLogoutView(APIView):
         logout_redirect_uri = LOGOUT_URL
         state = "none"
         kakao_service_logout_url = "https://kauth.kakao.com/oauth/logout"
-        # res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
-        # return Response(data="Kakao Logout Success", status=res.status_code)
-        return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        res = requests.get(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
+        logger.info("## respond of kakao logout ##")
+        logger.info(res)
+        return Response(data="Kakao Logout Success", status=res.status_code)
+        # return redirect(f"{kakao_service_logout_url}?client_id={kakao_rest_api_key}&logout_redirect_uri={logout_redirect_uri}&state={state}")
 
 
 class KakaoDisconnect(APIView):
@@ -173,7 +177,9 @@ class KakaoDisconnect(APIView):
         res = requests.post(kakao_service_disconnect_url, headers=headers, data=data)
 
         deleted_user_id = str(res.json().get("id"))
-        print("deleted_user_id: ", deleted_user_id)
+        # print("deleted_user_id: ", deleted_user_id)
+        logger.info("## deleted_user_id ##")
+        logger.info(deleted_user_id)
 
         if deleted_user_id == user.kakao_id:
             data_ = "Success Kakao Disconnect"
