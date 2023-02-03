@@ -199,13 +199,24 @@ class ProfileUploadView(views.APIView):
         operation_description=swaggers.profile_put_operation_description,
         request_body=AssignmentFileSerializer
     )
-    def put(self, request, format=None):
-        if 'file' not in request.data:
-            Response(status=status.HTTP_400_BAD_REQUEST)
-        profile_obj = request.data.get('file', None)
-        logger.info("## profile ##")
-        logger.info(profile_obj)
-        self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
+    def post(self, request, format=None):
+        user = request.user
+        files = request.FILES
+        print("files: ", files)
+        profile_obj = files.get('profile')
+        print("profile_obj: ", profile_obj)
+        user.profile = profile_obj
+        user.save()
+        # user.profile.save(name=profile_obj.name, content=profile_obj)
+        # if 'file' not in request.data:
+        #     Response(data="fail to find file", status=status.HTTP_400_BAD_REQUEST)
+        # user = request.user
+        # profile_obj = request.data.get('file', None)
+        # logger.info("## profile ##")
+        # logger.info(profile_obj)
+        # user.profile = profile_obj
+        # user.save()
+        # self.request.user.profile.save(profile_obj.name, profile_obj, save=True)
         return Response(status=status.HTTP_201_CREATED)
 
 
