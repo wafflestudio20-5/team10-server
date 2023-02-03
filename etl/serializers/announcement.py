@@ -22,6 +22,10 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
+        instance.content = instance.content.replace('\n', '')
+        instance.content = instance.content.replace('\r', '')
+        instance.content = instance.content.replace('. ', '.')
+        instance.content = instance.content.replace('.', '. ')
         if len(instance.content) > 10:
             rep['content'] = instance.content[:10] + '...'
         return rep
