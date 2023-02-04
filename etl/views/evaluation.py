@@ -45,4 +45,5 @@ class EvaluationView(generics.CreateAPIView):
         instance.descriptive_1 = self.request.data['descriptive_1']
         instance.descriptive_2 = self.request.data['descriptive_2']
         instance.save()
+
         return Response(status=status.HTTP_201_CREATED)
