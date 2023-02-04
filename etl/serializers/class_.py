@@ -20,6 +20,11 @@ class ClassSerializer(serializers.ModelSerializer):
         Module.objects.create(lecture=instance)
         return instance
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['is_evaluated'] = ClassEvaluation.objects.filter(lecture_id=instance.id)
+        return rep
+
     class Meta:
         model = Class
         fields = ['id', 'name', 'created_by']
