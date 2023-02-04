@@ -130,14 +130,22 @@ class AssignmentUploadView(views.APIView):
         operation_description=swaggers.assignments_upload_put_operation_description,
         request_body=AssignmentFileSerializer
     )
-    def put(self, request, pk, format=None):
+    def patch(self, request, pk, format=None):
         if 'file' not in request.data:
-            Response(status=status.HTTP_400_BAD_REQUEST)
+            Response(data="fail to find file", status=status.HTTP_400_BAD_REQUEST)
+        user = request.user
         file_obj = request.data.get('file', None)
-        obj = AssignmentToStudent.objects.get(assignment=pk, student=self.request.user)
-        obj.file.save(file_obj.name, file_obj, save=True)
+        obj = AssignmentToStudent.objects.get(assignment=pk, student=user)
+        obj.file = file_obj
         obj.is_submitted = True
         obj.save()
+        # if 'file' not in request.data:
+        #     Response(status=status.HTTP_400_BAD_REQUEST)
+        # file_obj = request.data.get('file', None)
+        # obj = AssignmentToStudent.objects.get(assignment=pk, student=self.request.user)
+        # obj.file.save(file_obj.name, file_obj, save=True)
+        # obj.is_submitted = True
+        # obj.save()
         return Response(status=status.HTTP_201_CREATED)
 
 
