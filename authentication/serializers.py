@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from etl.models import ClassEvaluation, Class
 from etl.serializers import ClassSerializer
 from .models import User
 from django.contrib.auth.password_validation import validate_password
@@ -50,8 +51,30 @@ class UserLoginSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'password', 'username', 'student_id', 'is_professor', 'is_superuser', 'classes']
 
 
+class ClassEvaluatedSerializer(serializers.ModelSerializer):
+    class ProfessorSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = ['username']
+
+    created_by = ProfessorSerializer(read_only=True)
+
+    def to_internal_value(self, data):
+        internal_value = super().to_internal_value(data)
+        return {**internal_value, 'created_by': self.context['request'].user}
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['is_evaluated'] = ClassEvaluation.objects.filter(lecture_id=instance.id).filter(student_id=self.context['user_id']).exists()
+        return rep
+
+    class Meta:
+        model = Class
+        fields = ['id', 'name', 'created_by']
+
+
 class UserDetailSerializer(serializers.ModelSerializer):
-    classes = ClassSerializer(many=True, read_only=True)
+    classes = ClassEvaluatedSerializer(many=True, read_only=True)
 
     def validate_student_id(self, value: str):
         if len(value) != 10:
