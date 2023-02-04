@@ -21,7 +21,6 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 # Create your views here.
 class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -287,11 +286,6 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
     permission_classes = [IsAdmin | (IsAuthenticated & DoesUserMatchRequest)]
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['user_id'] = self.request.user.id
-        return context
 
     @swagger_auto_schema(
         operation_description=swaggers.user_get_operation_description,
