@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST'), '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST'), '127.0.0.1', 'localhost', os.environ.get('S3_HOST')]
 
 # Application definition
 
@@ -60,6 +60,8 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DATETIME_FORMAT': '%s000',
 }
