@@ -287,6 +287,11 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserDetailSerializer
     permission_classes = [IsAdmin | (IsAuthenticated & DoesUserMatchRequest)]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user_id'] = self.request.user.id
+        return context
+
     @swagger_auto_schema(
         operation_description=swaggers.user_get_operation_description,
         responses=swaggers.user_get_responses,
