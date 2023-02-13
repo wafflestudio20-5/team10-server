@@ -61,4 +61,3 @@ class WeeklyModuleByClassView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
-
